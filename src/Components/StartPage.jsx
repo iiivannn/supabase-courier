@@ -1,11 +1,24 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import useAuthUser from "../hooks/useAuthUser";
+import { supabase } from "../supabase";
+import LogoutModal from "./LogoutModal";
 import "./styles.css";
 import logo from "../assets/parsafe_logo.png";
 
 export default function StartPage() {
   const navigate = useNavigate(); // For navigating between pages
   const { user, error } = useAuthUser();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error("Error logging out:", error.message);
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="box">
@@ -40,6 +53,12 @@ export default function StartPage() {
         </div>
 
         <button onClick={() => navigate("/scan")}>Start</button>
+        <button onClick={() => setIsModalOpen(true)}>Logout</button>
+        <LogoutModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onLogout={handleLogout}
+        />
       </div>
     </div>
   );

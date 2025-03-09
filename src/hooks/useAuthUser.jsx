@@ -8,17 +8,34 @@ export default function useAuthUser() {
   useEffect(() => {
     const fetchUser = async () => {
       const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      console.log("Logged-in user:", user);
-      if (userError || !user) {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (sessionError || !session) {
         setError("User not logged in");
+        setUser(null);
       } else {
-        setUser(user);
+        setUser(session.user);
       }
     };
     fetchUser();
+
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_IN" && session) {
+          setUser(session.user);
+        } else if (event === "SIGNED_OUT") {
+          setUser(null);
+        }
+      }
+    );
+
+    // Cleanup subscription on unmount
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   return { user, error };

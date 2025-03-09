@@ -19,6 +19,12 @@ export default function ScanBarcode() {
     setMessage("");
     setStatusMessage("");
     setErrorMessage("");
+
+    if (!user) {
+      setErrorMessage("User not logged in. Cannot receive parcel.");
+      return;
+    }
+
     setIsLoading(true); // Set loading to true
 
     if (!barcode) {
@@ -158,7 +164,6 @@ export default function ScanBarcode() {
           <br />
 
           <button onClick={() => navigate("/")}>Main Page</button>
-          {/* <button onClick={() => navigate("/compartment")}>Continue</button> */}
         </div>
       </div>
     </div>
