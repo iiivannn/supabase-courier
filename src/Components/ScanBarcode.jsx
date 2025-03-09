@@ -1,20 +1,29 @@
 import { useState } from "react";
-import { supabase } from "../../supabase";
+import { supabase } from "../supabase";
+import useAuthUser from "../hooks/useAuthUser";
+import logo from "../assets/parsafe_logo.png";
+import Loading from "../loading/loading"; // Import the Loading component
+import { useNavigate } from "react-router-dom";
 
-const ScanBarcode = () => {
+export default function ScanBarcode() {
+  const navigate = useNavigate(); // For navigating between pages
   const [barcode, setBarcode] = useState("");
   const [message, setMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // Loading state
+  const { user, error } = useAuthUser();
 
   const handleScan = async () => {
     // Clear previous messages
     setMessage("");
     setStatusMessage("");
     setErrorMessage("");
+    setIsLoading(true); // Set loading to true
 
     if (!barcode) {
       setErrorMessage("Please enter a barcode.");
+      setIsLoading(false); // Set loading to false
       return;
     }
 
@@ -27,6 +36,7 @@ const ScanBarcode = () => {
 
       if (allOrdersError) {
         setErrorMessage("Error fetching all orders: " + allOrdersError.message);
+        setIsLoading(false); // Set loading to false
         return;
       } else {
         console.log("All Orders:", allOrders, "Error:", allOrdersError);
@@ -43,6 +53,7 @@ const ScanBarcode = () => {
         setErrorMessage(
           "Error fetching pending orders: " + selectError.message
         );
+        setIsLoading(false); // Set loading to false
         return;
       }
 
@@ -53,6 +64,7 @@ const ScanBarcode = () => {
 
       if (insertError) {
         setErrorMessage("Error inserting scan record: " + insertError.message);
+        setIsLoading(false); // Set loading to false
         return;
       }
 
@@ -74,48 +86,81 @@ const ScanBarcode = () => {
         setStatusMessage(
           `✅ Barcode matched with pending order! Status will be updated to completed.`
         );
+        navigate("/compartment"); // Navigate to Compartment.jsx
       }
     } catch (error) {
       setErrorMessage("An unexpected error occurred: " + error.message);
     } finally {
+      setIsLoading(false); // Set loading to false
       setBarcode(""); // Clear the input field regardless of outcome
     }
   };
 
   return (
-    <div>
-      <h2>Scan Barcode</h2>
-      <input
-        type="text"
-        value={barcode}
-        name="barcode"
-        onChange={(e) => setBarcode(e.target.value)}
-        placeholder="Enter scanned barcode"
-      />
-      <button onClick={handleScan}>Submit</button>
+    <div className="box">
+      <div className="wrapper">
+        <img src={logo} alt="ParSafe Logo" />
 
-      {/* Success message for database insertion */}
-      {message && <p style={{ color: "green" }}>{message}</p>}
+        <div className="title">
+          <p>Welcome to ParSafe</p>
+          <p>Your Smart Parcel Receiver</p>
+        </div>
 
-      {/* Status message for barcode matching result */}
-      {statusMessage && (
-        <p
-          style={{
-            color: statusMessage.includes("✅")
-              ? "blue"
-              : statusMessage.includes("❌")
-              ? "red"
-              : "orange",
-          }}
-        >
-          {statusMessage}
-        </p>
-      )}
+        <div className="get_user">
+          <p>
+            ParSafe User: {user ? user.user_metadata.username : "Loading..."}
+          </p>
+          {error && <p className="error">{error}</p>}
+        </div>
 
-      {/* Error message */}
-      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+        <div className="instructions">
+          <p>Instructions</p>
+          <ul>
+            <li>Please Scan the Parcel</li>
+            <li>Wait for the confirmation</li>
+          </ul>
+        </div>
+
+        <div className="parcel_input">
+          <input
+            type="text"
+            value={barcode}
+            name="barcode"
+            onChange={(e) => setBarcode(e.target.value)}
+            placeholder="Enter scanned barcode"
+          />
+          <button onClick={handleScan}>Submit</button>
+
+          {/* Loading Animation */}
+          {isLoading && <Loading />}
+
+          {/* Success message for database insertion */}
+          {message && <p style={{ color: "green" }}>{message}</p>}
+
+          {/* Status message for barcode matching result */}
+          {statusMessage && (
+            <p
+              style={{
+                color: statusMessage.includes("✅")
+                  ? "blue"
+                  : statusMessage.includes("❌")
+                  ? "red"
+                  : "orange",
+              }}
+            >
+              {statusMessage}
+            </p>
+          )}
+
+          {/* Error message */}
+          {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+          <br />
+          <br />
+
+          <button onClick={() => navigate("/")}>Main Page</button>
+          {/* <button onClick={() => navigate("/compartment")}>Continue</button> */}
+        </div>
+      </div>
     </div>
   );
-};
-
-export default ScanBarcode;
+}
