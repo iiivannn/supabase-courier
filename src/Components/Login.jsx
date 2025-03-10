@@ -52,15 +52,6 @@ export default function Login() {
       <br />
       <br />
       <button onClick={handleLogin}>Login</button>
-      <p>
-        Don't have an account?{" "}
-        <span
-          onClick={() => navigate("/signup")}
-          style={{ color: "blue", cursor: "pointer" }}
-        >
-          Sign up
-        </span>
-      </p>
     </div>
   );
 }
