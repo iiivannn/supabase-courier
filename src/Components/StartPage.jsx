@@ -25,40 +25,54 @@ export default function StartPage() {
       <div className="wrapper">
         <img src={logo} alt="ParSafe Logo" />
 
-        <div className="title">
-          <p>Welcome to ParSafe</p>
-          <p>Your Smart Parcel Receiver</p>
+        <div className="content_wrapper">
+          <div className="title">
+            <p>Welcome to ParSafe</p>
+            <p>Your Smart Parcel Receiver</p>
+          </div>
+
+          <div className="get_user">
+            <p>
+              ParSafe User: {user ? user.user_metadata.username : "Loading..."}
+            </p>
+            {error && <p className="error">{error}</p>}
+          </div>
+
+          <div className="instructions">
+            <p>Instructions</p>
+            <ul>
+              <li>
+                Check if the ParSafe User matches the Parcel Customer Name
+              </li>
+              <li>
+                Click the &apos;Start&apos; below to start the deliver process.
+              </li>
+              <li>Scan the parcel using the outside scanner.</li>
+              <li>
+                Upon completion, open the compartment door and place the parcel.
+              </li>
+              <li>Wait until the process is complete.</li>
+            </ul>
+          </div>
+
+          <div className="buttons">
+            <button className="btn" onClick={() => navigate("/scan")}>
+              Start
+            </button>
+          </div>
         </div>
 
-        <div className="get_user">
-          <p>
-            ParSafe User: {user ? user.user_metadata.username : "Loading..."}
-          </p>
-          {error && <p className="error">{error}</p>}
-        </div>
+        <div className="logout">
+          <button className="btn" onClick={() => setIsModalOpen(true)}>
+            Logout
+          </button>
 
-        <div className="instructions">
-          <p>Instructions</p>
-          <ul>
-            <li>Check if the ParSafe User matches the Parcel Customer Name</li>
-            <li>
-              Click the &apos;Start&apos; below to start the deliver process.
-            </li>
-            <li>Scan the parcel using the outside scanner.</li>
-            <li>
-              Upon completion, open the compartment door and place the parcel.
-            </li>
-            <li>Wait until the process is complete.</li>
-          </ul>
+          <LogoutModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onLogout={handleLogout}
+          />
         </div>
-
-        <button onClick={() => navigate("/scan")}>Start</button>
-        <button onClick={() => setIsModalOpen(true)}>Logout</button>
-        <LogoutModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onLogout={handleLogout}
-        />
       </div>
     </div>
   );

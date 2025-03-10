@@ -1,3 +1,124 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+body {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Main container */
+.box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #d6d2c4;
+  color: #fff;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Content wrapper */
+.content_wrapper {
+  background: #fff;
+  color: #264027;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 700px;
+}
+
+/* Logo styling */
+.wrapper img {
+  width: 400px;
+  margin-bottom: 15px;
+}
+
+/* Title styling */
+.title p {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+
+/* User info */
+.get_user {
+  margin: 15px 0 0;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.get_user .error {
+  color: #d98324;
+  font-size: 14px;
+}
+
+.get_user p {
+  margin-bottom: 0;
+  background-color: #ff3f3f;
+  width: max-content;
+  padding: 5px 10px;
+  border-radius: 10px;
+  color: #fffbfb;
+  font-weight: 550;
+}
+
+/* Instructions */
+.instructions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.instructions p {
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-decoration: underline 2px;
+}
+
+.instructions ul {
+  padding-left: 20px;
+  text-align: left;
+}
+
+.instructions li {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+/* Buttons */
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+.btn {
+  padding: 10px 30px;
+  background-color: bisque;
+  border-radius: 5px;
+  border: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  font-family: "Poppins";
+}
+
+.btn:hover {
+  background: rgb(222, 199, 172);
+}
+
+/* Modal */
 .modal {
   position: fixed;
   top: 0;
@@ -15,4 +136,46 @@
   padding: 20px;
   border-radius: 5px;
   text-align: center;
+  width: 300px;
+}
+
+.modal-content p {
+  margin-bottom: 15px;
+}
+
+.modal-content button {
+  margin: 5px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.logout {
+  margin-top: 20px;
+}
+
+.confirm_logout {
+  color: #333;
+  font-weight: 700;
+  font-size: 1.7rem;
+}
+
+.logout_input {
+  border-radius: 5px;
+  padding: 3px 6px;
+  margin-bottom: 25px;
+}
+
+.logout_btn {
+  border: none;
+  border-radius: 5px;
+  background-color: bisque;
+  padding: 4px 8px;
+  font-family: "Poppins";
+  font-size: 1rem;
+  text-transform: uppercase;
+  font-weight: 550;
 }

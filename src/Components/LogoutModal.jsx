@@ -72,19 +72,35 @@ export default function LogoutModal({ isOpen, onClose, onLogout }) {
   return (
     <div className="modal">
       <div className="modal-content">
-        <h2>Confirm Logout</h2>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <input
-          type="password"
-          placeholder="Enter your password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isDisabled}
-        />
-        <button onClick={handleLogout} disabled={isDisabled || password === ""}>
-          Logout
-        </button>
-        <button onClick={onClose}>Cancel</button>
+        <h2 className="confirm_logout">Confirm Logout</h2>
+        {error && (
+          <p className="logout_error" style={{ color: "red" }}>
+            {error}
+          </p>
+        )}
+
+        <div className="logout_content">
+          <input
+            type="password"
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isDisabled}
+            className="logout_input"
+          />
+          <div className="logout_buttons">
+            <button
+              className="logout_btn"
+              onClick={handleLogout}
+              disabled={isDisabled || password === ""}
+            >
+              Logout
+            </button>
+            <button className="logout_btn" onClick={onClose}>
+              Cancel
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

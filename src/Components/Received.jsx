@@ -11,34 +11,41 @@ export default function Received() {
     <div className="box">
       <div className="wrapper">
         <img src={logo} alt="ParSafe Logo" />
+        <div className="content_wrapper">
+          <div className="title">
+            <p>Welcome to ParSafe</p>
+            <p>Your Smart Parcel Receiver</p>
+          </div>
 
-        <div className="title">
-          <p>Welcome to ParSafe</p>
-          <p>Your Smart Parcel Receiver</p>
+          <div className="get_user">
+            <p>
+              ParSafe User: {user ? user.user_metadata.username : "Loading..."}
+            </p>
+            {error && <p className="error">{error}</p>}
+          </div>
+
+          <div className="instructions">
+            <p>Instructions</p>
+            <ul>
+              <li>Parcel Received!</li>
+              <li>To go back to Home Page, press &apos;Exit&apos;.</li>
+              <li>To deliver another item, press &apos;Deliver Again&apos;.</li>
+              <li>
+                Upon completion, open the compartment door and place the parcel.
+              </li>
+              <li>Wait until the process is complete.</li>
+            </ul>
+          </div>
+
+          <div className="buttons">
+            <button className="btn" onClick={() => navigate("/")}>
+              Exit
+            </button>
+            <button className="btn" onClick={() => navigate("/scan")}>
+              Deliver Again
+            </button>
+          </div>
         </div>
-
-        <div className="get_user">
-          <p>
-            ParSafe User: {user ? user.user_metadata.username : "Loading..."}
-          </p>
-          {error && <p className="error">{error}</p>}
-        </div>
-
-        <div className="instructions">
-          <p>Instructions</p>
-          <ul>
-            <li>Parcel Received!</li>
-            <li>To go back to Home Page, press &apos;Exit&apos;.</li>
-            <li>To deliver another item, press &apos;Deliver Again&apos;.</li>
-            <li>
-              Upon completion, open the compartment door and place the parcel.
-            </li>
-            <li>Wait until the process is complete.</li>
-          </ul>
-        </div>
-
-        <button onClick={() => navigate("/")}>Exit</button>
-        <button onClick={() => navigate("/scan")}>Deliver Again</button>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import useAuthUser from "../hooks/useAuthUser";
 import logo from "../assets/parsafe_logo.png";
 import Loading from "../loading/loading"; // Import the Loading component
 import { useNavigate } from "react-router-dom";
+import "./styles.css";
 
 export default function ScanBarcode() {
   const navigate = useNavigate(); // For navigating between pages
@@ -107,63 +108,67 @@ export default function ScanBarcode() {
       <div className="wrapper">
         <img src={logo} alt="ParSafe Logo" />
 
-        <div className="title">
-          <p>Welcome to ParSafe</p>
-          <p>Your Smart Parcel Receiver</p>
-        </div>
+        <div className="content_wrapper">
+          <div className="title">
+            <p>Welcome to ParSafe</p>
+            <p>Your Smart Parcel Receiver</p>
+          </div>
 
-        <div className="get_user">
-          <p>
-            ParSafe User: {user ? user.user_metadata.username : "Loading..."}
-          </p>
-          {error && <p className="error">{error}</p>}
-        </div>
-
-        <div className="instructions">
-          <p>Instructions</p>
-          <ul>
-            <li>Please Scan the Parcel</li>
-            <li>Wait for the confirmation</li>
-          </ul>
-        </div>
-
-        <div className="parcel_input">
-          <input
-            type="text"
-            value={barcode}
-            name="barcode"
-            onChange={(e) => setBarcode(e.target.value)}
-            placeholder="Enter scanned barcode"
-          />
-          <button onClick={handleScan}>Submit</button>
-
-          {/* Loading Animation */}
-          {isLoading && <Loading />}
-
-          {/* Success message for database insertion */}
-          {message && <p style={{ color: "green" }}>{message}</p>}
-
-          {/* Status message for barcode matching result */}
-          {statusMessage && (
-            <p
-              style={{
-                color: statusMessage.includes("✅")
-                  ? "blue"
-                  : statusMessage.includes("❌")
-                  ? "red"
-                  : "orange",
-              }}
-            >
-              {statusMessage}
+          <div className="get_user">
+            <p>
+              ParSafe User: {user ? user.user_metadata.username : "Loading..."}
             </p>
-          )}
+            {error && <p className="error">{error}</p>}
+          </div>
 
-          {/* Error message */}
-          {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-          <br />
-          <br />
+          <div className="instructions">
+            <p>Instructions</p>
+            <ul>
+              <li>Please Scan the Parcel</li>
+              <li>Wait for the confirmation</li>
+            </ul>
+          </div>
 
-          <button onClick={() => navigate("/")}>Main Page</button>
+          <div className="parcel_input">
+            <input
+              type="text"
+              value={barcode}
+              name="barcode"
+              onChange={(e) => setBarcode(e.target.value)}
+              placeholder="Enter scanned barcode"
+            />
+            <button onClick={handleScan}>Submit</button>
+
+            {/* Loading Animation */}
+            {isLoading && <Loading />}
+
+            {/* Success message for database insertion */}
+            {message && <p style={{ color: "green" }}>{message}</p>}
+
+            {/* Status message for barcode matching result */}
+            {statusMessage && (
+              <p
+                style={{
+                  color: statusMessage.includes("✅")
+                    ? "blue"
+                    : statusMessage.includes("❌")
+                    ? "red"
+                    : "orange",
+                }}
+              >
+                {statusMessage}
+              </p>
+            )}
+
+            {/* Error message */}
+            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+            <br />
+            <br />
+
+            <button className="btn" onClick={() => navigate("/")}>
+              Main Page
+            </button>
+          </div>
         </div>
       </div>
     </div>
