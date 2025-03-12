@@ -5,7 +5,6 @@ import {
   Routes,
   useNavigate,
 } from "react-router-dom";
-import { supabase } from "./supabase";
 import ScanBarcode from "./Components/ScanBarcode";
 import StartPage from "./Components/StartPage";
 import Compartment from "./Components/Compartment";
@@ -17,21 +16,20 @@ function AppRoutes() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
+    const checkDeviceSelected = () => {
+      const selectedDevice = localStorage.getItem("selectedDevice");
+      // Only redirect to login if no device is selected
+      if (!selectedDevice) {
         navigate("/login");
       }
     };
-    checkUser();
+    checkDeviceSelected();
   }, [navigate]);
 
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/" element={<StartPage />} />
+      <Route path="/start" element={<StartPage />} />
+      <Route path="/" element={<Login />} />
       <Route path="/scan" element={<ScanBarcode />} />
       <Route path="/compartment" element={<Compartment />} />
       <Route path="/closed" element={<ClosedVerify />} />

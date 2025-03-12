@@ -54,7 +54,10 @@ body {
   margin: 15px 0 0;
   font-size: 16px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
+
+  align-items: center;
 }
 
 .get_user .error {
@@ -117,200 +120,159 @@ body {
 .btn:hover {
   background: rgb(222, 199, 172);
 }
-
-/* Modal */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+/* Login page styles matched to app color scheme */
+.device-selector-container {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.modal-content {
-  background: white;
+  min-height: 100vh;
+  background-color: #d6d2c4; /* Match other pages background */
   padding: 20px;
-  border-radius: 5px;
+}
+
+.device-selector-form {
+  background-color: #fff; /* White - match content wrapper */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  max-width: 450px;
   text-align: center;
-  width: 300px;
 }
 
-.modal-content p {
-  margin-bottom: 15px;
-}
-
-.modal-content button {
-  margin: 5px;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.logout {
-  margin-top: 20px;
-}
-
-.confirm_logout {
+.device-selector-form h2 {
+  margin-top: 0;
+  margin-bottom: 24px;
   color: #333;
-  font-weight: 700;
-  font-size: 1.7rem;
+  font-size: 24px;
+  font-weight: 600;
 }
 
-.logout_input {
-  border-radius: 5px;
-  padding: 3px 6px;
-  margin-bottom: 25px;
+.device-error {
+  color: #8b0000;
+  background-color: #ffe4e1;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
 }
 
-.logout_btn {
-  border: none;
-  border-radius: 5px;
-  background-color: bisque;
-  padding: 4px 8px;
-  font-family: "Poppins";
-  font-size: 1rem;
-  text-transform: uppercase;
-  font-weight: 550;
+.device-dropdown {
+  margin-bottom: 24px;
 }
 
-/* Login */
-
-/* Login.css */
-:root {
-  --primary-color: #f5f5dc; /* Beige */
-  --secondary-color: #ffe4c4; /* Bisque */
-  --accent-color: #deb887; /* Burlywood */
-  --text-color: #5e4c3e; /* Dark brown for text */
-  --error-color: #d9534f; /* Red for errors */
-  --border-radius: 12px;
-  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.login-container {
-  display: flex;
-  flex-direction: row;
-  height: 100vh;
-  background-color: var(--primary-color);
-  font-family: "Arial", sans-serif;
-}
-
-.login-form-container {
-  flex: 3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-}
-
-.login-form {
-  background-color: white;
-  padding: 40px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  width: 60%;
-  text-align: center;
-}
-
-.login-image-container {
-  flex: 2;
-  background-color: var(--secondary-color);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-top-left-radius: var(--border-radius);
-  border-bottom-left-radius: var(--border-radius);
-}
-
-.placeholder-image {
-  width: 80%;
-  height: 60%;
-  background-color: var(--accent-color);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: var(--border-radius);
-  color: white;
-  font-weight: bold;
-}
-
-h2 {
-  color: var(--text-color);
-  margin-bottom: 30px;
-}
-
-.login_input_fields {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.device-select {
   width: 100%;
-}
-
-.login_input {
-  width: 100%;
-  max-width: -webkit-fill-available;
   padding: 12px 15px;
-  border: 1px solid var(--accent-color);
-  border-radius: var(--border-radius);
+  border: 1px solid #d6d2c4; /* Match background color */
+  border-radius: 4px;
   font-size: 16px;
-  outline: none;
-  transition: border 0.3s;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
 }
 
-.login_input:focus {
-  border: 1px solid var(--text-color);
+.device-select:focus {
+  outline: none;
+  border-color: bisque;
+  box-shadow: 0 0 0 2px rgba(255, 228, 196, 0.3); /* bisque with opacity */
+}
+
+.device-select option {
+  padding: 10px;
+  background-color: #fff;
+  color: #333;
+}
+
+.device-status {
+  background-color: #f8f7f2; /* Lighter version of background */
+  border-radius: 4px;
+  padding: 12px;
+  margin-bottom: 24px;
+  border-left: 4px solid bisque;
+}
+
+.device-status p {
+  margin: 0;
+  color: #333;
+  font-size: 14px;
 }
 
 .login-button {
-  background-color: var(--accent-color);
-  color: rgb(244, 242, 242);
+  width: 100%;
+  padding: 12px 20px;
+  background-color: bisque; /* Exact match to button color */
+  color: #333;
   border: none;
-  padding: 12px 30px;
-  border-radius: var(--border-radius);
-  font-size: 1.1rem;
-  font-weight: 550;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s;
-  font-family: "Poppins";
-  margin-top: 20px;
+  transition: background-color 0.2s;
 }
 
 .login-button:hover {
-  background-color: var(--text-color);
+  background-color: #ffdab3; /* Slightly darker bisque on hover */
 }
 
-.error-message {
-  color: var(--error-color);
-  margin-bottom: 20px;
+.login-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 228, 196, 0.5); /* bisque with opacity */
 }
 
-.login_img {
-  width: 100%;
-  height: 100%;
+.login-button:disabled {
+  background-color: #ffe8d6; /* Lighter bisque for disabled state */
+  color: #999;
+  cursor: not-allowed;
+}
 
-  object-fit: cover;
+/* Logo styling */
+.logo-container {
+  margin-bottom: 30px;
+}
+
+.logo-container img {
+  max-width: 180px;
+  height: auto;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid bisque;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
-  .login-container {
-    flex-direction: column-reverse;
+@media (max-width: 576px) {
+  .device-selector-form {
+    padding: 20px;
   }
 
-  .login-image-container {
-    flex: 1;
-    border-radius: 0;
-    border-top-left-radius: var(--border-radius);
-    border-top-right-radius: var(--border-radius);
+  .device-selector-form h2 {
+    font-size: 20px;
   }
 
-  .login-form-container {
-    flex: 2;
+  .login-button {
+    padding: 10px 16px;
+    font-size: 15px;
   }
 }
