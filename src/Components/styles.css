@@ -240,6 +240,90 @@ body {
   max-width: 180px;
   height: auto;
 }
+.kiosk-scan-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.kiosk-scan-button {
+  background-color: #ea573e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 20px 40px;
+  font-size: 24px;
+  font-weight: bold;
+  width: 80%;
+  max-width: 400px;
+  height: 150px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.kiosk-scan-button:hover {
+  background-color: #4c0707;
+}
+
+.kiosk-scan-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+.kiosk-scanning-active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  gap: 10px;
+}
+.kiosk-scanning-active {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80%;
+  gap: 10px;
+}
+
+.kiosk-pulse {
+  width: 30px;
+  height: 30px;
+  background-color: #e74c3c;
+  align-items: center;
+  border-radius: 50%;
+  margin: 10px;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+}
+.kiosk-scanned-data {
+  font-family: monospace;
+  font-size: 40px !important;
+  background-color: #ffffff;
+  color: #2c3e50;
+  padding: 10px 15px;
+  border-radius: 4px;
+  border: 1px solid #d28888;
+  width: 100%;
+  text-align: center;
+  min-height: 45px;
+}
+
+
+
 
 /* Loading spinner */
 @keyframes spin {

@@ -1,15 +1,17 @@
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import "./styles.css";
 import logo from "../assets/parsafe_logo.png";
-
 import CheckLogout from "./logout/checkLogout";
 
-export default function StartPage() {
+export default function CompartmentPage() {
   const navigate = useNavigate();
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [parcelDetected, setParcelDetected] = useState(false);
+  const [lockOpen, setLockOpen] = useState(false);
+  const [timer, setTimer] = useState(15);
 
   // Get the selected device from localStorage
   const selectedDevice = localStorage.getItem("selectedDevice");
@@ -72,6 +74,62 @@ export default function StartPage() {
     }
   }
 
+  // Open the solenoid lock for 15 seconds
+  const openSolenoidLock = async () => {
+    try {
+      const response = await fetch("http://<YOUR_RASPBERRY_PI_IP>:5000/open-lock", {
+        method: "POST",
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        setLockOpen(true);
+        startTimer();
+      } else {
+        console.error("Failed to open lock:", result.message);
+      }
+    } catch (error) {
+      console.error("Error opening lock:", error);
+    }
+  };
+
+  // Start a 15-second timer
+  const startTimer = () => {
+    const interval = setInterval(() => {
+      setTimer((prev) => {
+        if (prev === 0) {
+          clearInterval(interval);
+          setLockOpen(false);
+          return 15;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Check if a parcel is detected
+  const checkParcel = async () => {
+    try {
+      const response = await fetch("http://<YOUR_RASPBERRY_PI_IP>:5000/check-parcel");
+      const result = await response.json();
+      if (result.status === "success") {
+        setParcelDetected(result.parcel_detected);
+      } else {
+        console.error("Failed to check parcel:", result.message);
+      }
+    } catch (error) {
+      console.error("Error checking parcel:", error);
+    }
+  };
+
+  // Handle parcel placement confirmation
+  const handleParcelPlaced = () => {
+    if (parcelDetected) {
+      navigate("/closed"); // Navigate to the next page
+    } else {
+      alert("No parcel detected. Please place the parcel inside the compartment.");
+    }
+  };
+
   return (
     <div className="box">
       <CheckLogout deviceId={selectedDevice} />
@@ -104,9 +162,21 @@ export default function StartPage() {
             </ul>
           </div>
 
-          <button className="btn" onClick={() => navigate("/closed")}>
-            Continue
-          </button>
+          {!lockOpen ? (
+            <button className="btn" onClick={openSolenoidLock}>
+              Open Compartment
+            </button>
+          ) : (
+            <div>
+              <p>Compartment open for {timer} seconds...</p>
+              <button className="btn" onClick={checkParcel}>
+                Check Parcel
+              </button>
+              <button className="btn" onClick={handleParcelPlaced}>
+                Parcel Placed
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

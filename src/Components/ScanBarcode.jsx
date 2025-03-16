@@ -13,7 +13,8 @@ export default function ScanBarcode() {
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false); // Loading state
-
+  const [isScanning, setIsScanning] = useState(false);
+  const [scannedData, setScannedData] = useState("");
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,22 +79,61 @@ export default function ScanBarcode() {
     }
   }
 
+  // Handle barcode scanner input
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (isScanning) {
+        setScannedData((prev) => prev + event.key);
+      }
+    };
+
+    window.addEventListener("keypress", handleKeyPress);
+    return () => {
+      window.removeEventListener("keypress", handleKeyPress);
+    };
+  }, [isScanning]);
+
+  // Start a 6-second timer when scanning begins
+  useEffect(() => {
+    let timer;
+    if (isScanning) {
+      timer = setTimeout(() => {
+        if (scannedData) {
+          handleScan();
+        } else {
+          setIsScanning(false);
+          setErrorMessage("No barcode scanned. Please try again.");
+        }
+      }, 6000); // 6 seconds
+    }
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isScanning, scannedData]);
+
+  const startScanning = () => {
+    // Clear previous messages
+    setMessage("");
+    setStatusMessage("");
+    setErrorMessage("");
+    setScannedData("");
+    setIsScanning(true);
+  };
+
   const handleScan = async () => {
+    setIsScanning(false);
+
     // Clear previous messages
     setMessage("");
     setStatusMessage("");
     setErrorMessage("");
 
-    if (!deviceUsername) {
-      setErrorMessage("User not logged in. Cannot receive parcel.");
-      return;
-    }
+    setIsLoading(true);
 
-    setIsLoading(true); // Set loading to true
-
-    if (!barcode) {
-      setErrorMessage("Please enter a barcode.");
-      setIsLoading(false); // Set loading to false
+    if (!scannedData) {
+      setErrorMessage("No barcode scanned.");
+      setIsLoading(false);
       return;
     }
 
@@ -102,11 +142,11 @@ export default function ScanBarcode() {
       const { data: allOrders, error: allOrdersError } = await supabase
         .from("user_order")
         .select("*")
-        .ilike("parcel_barcode", barcode.trim()); // Trim to remove any whitespace
+        .ilike("parcel_barcode", scannedData.trim());
 
       if (allOrdersError) {
         setErrorMessage("Error fetching all orders: " + allOrdersError.message);
-        setIsLoading(false); // Set loading to false
+        setIsLoading(false);
         return;
       } else {
         console.log("All Orders:", allOrders, "Error:", allOrdersError);
@@ -116,25 +156,25 @@ export default function ScanBarcode() {
       const { data: pendingOrders, error: selectError } = await supabase
         .from("user_order")
         .select("*")
-        .ilike("parcel_barcode", barcode.trim())
+        .ilike("parcel_barcode", scannedData.trim())
         .eq("status", "pending");
 
       if (selectError) {
         setErrorMessage(
           "Error fetching pending orders: " + selectError.message
         );
-        setIsLoading(false); // Set loading to false
+        setIsLoading(false);
         return;
       }
 
       // Insert scan record regardless of whether we found a pending order
       const { error: insertError } = await supabase
         .from("courier")
-        .insert([{ scanned_barcode: barcode.trim(), scanned_at: new Date() }]);
+        .insert([{ scanned_barcode: scannedData.trim(), scanned_at: new Date() }]);
 
       if (insertError) {
         setErrorMessage("Error inserting scan record: " + insertError.message);
-        setIsLoading(false); // Set loading to false
+        setIsLoading(false);
         return;
       }
 
@@ -156,13 +196,17 @@ export default function ScanBarcode() {
         setStatusMessage(
           `✅ Barcode matched with pending order! Status will be updated to completed.`
         );
-        navigate("/compartment"); // Navigate to Compartment.jsx
+
+        // Add a slight delay before navigation
+        setTimeout(() => {
+          navigate("/compartment");
+        }, 1500);
       }
     } catch (error) {
       setErrorMessage("An unexpected error occurred: " + error.message);
     } finally {
-      setIsLoading(false); // Set loading to false
-      setBarcode(""); // Clear the input field regardless of outcome
+      setIsLoading(false);
+      setScannedData("");
     }
   };
 
@@ -196,41 +240,46 @@ export default function ScanBarcode() {
             </ul>
           </div>
 
-          <div className="parcel_input">
-            <input
-              type="text"
-              value={barcode}
-              name="barcode"
-              onChange={(e) => setBarcode(e.target.value)}
-              placeholder="Enter scanned barcode"
-            />
-            <button onClick={handleScan}>Submit</button>
+          <div className="kiosk-scan-section">
+            {!isScanning ? (
+              <button
+                className="kiosk-scan-button"
+                onClick={startScanning}
+                disabled={isLoading}
+              >
+                SCAN PARCEL
+              </button>
+            ) : (
+              <div className="kiosk-scanning-active">
+                <div className="kiosk-pulse"></div>
+                <p>Please scan barcode now</p>
+                <p className="kiosk-scanned-data">{scannedData}</p>
+              </div>
+            )}
 
             {/* Loading Animation */}
             {isLoading && <Loading />}
 
             {/* Success message for database insertion */}
-            {message && <p style={{ color: "green" }}>{message}</p>}
+            {message && <p className="kiosk-success">{message}</p>}
 
             {/* Status message for barcode matching result */}
             {statusMessage && (
               <p
-                style={{
-                  color: statusMessage.includes("✅")
-                    ? "blue"
+                className={`kiosk-status ${
+                  statusMessage.includes("✅")
+                    ? "success"
                     : statusMessage.includes("❌")
-                    ? "red"
-                    : "orange",
-                }}
+                    ? "error"
+                    : "warning"
+                }`}
               >
                 {statusMessage}
               </p>
             )}
 
             {/* Error message */}
-            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-            <br />
-            <br />
+            {errorMessage && <p className="kiosk-error">{errorMessage}</p>}
 
             <button className="btn" onClick={() => navigate("/")}>
               Main Page
