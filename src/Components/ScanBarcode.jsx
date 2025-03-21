@@ -85,7 +85,7 @@ export default function ScanBarcode() {
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (isScanning) {
-        setScannedData(event.key);
+        setScannedData((prev) => (prev + event.key));
       }
     };
 
@@ -95,7 +95,7 @@ export default function ScanBarcode() {
     };
   }, [isScanning]);
 
-  // Start a 8-second timer when scanning begins
+  
   useEffect(() => {
     let timer;
     if (isScanning) {
@@ -106,7 +106,7 @@ export default function ScanBarcode() {
           setIsScanning(false);
           setErrorMessage("No barcode scanned. Please try again.");
         }
-      }, 8000); // 8 seconds
+      }, 10000); // 10 seconds
     }
 
     return () => {

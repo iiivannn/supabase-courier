@@ -9,9 +9,8 @@ export default function CompartmentPage() {
   const navigate = useNavigate();
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [parcelDetected, setParcelDetected] = useState(false);
-  const [lockOpen, setLockOpen] = useState(false);
-  const [timer, setTimer] = useState(15);
+  const [compartmentStatus, setCompartmentStatus] = useState("locked"); // "locked", "opening", "open", "detecting", "closing"
+  const [detectionCountdown, setDetectionCountdown] = useState(0);
 
   // Get the selected device from localStorage
   const selectedDevice = localStorage.getItem("selectedDevice");
@@ -44,8 +43,15 @@ export default function CompartmentPage() {
     // Check for existing user when device is selected
     checkDeviceUser(selectedDevice);
 
+    // Automatically open the solenoid lock when component loads
+    openSolenoidLock();
+
+    // Start interval for checking parcel detection
+    const parcelCheckInterval = setInterval(checkParcel, 1000);
+
     return () => {
       supabase.removeChannel(subscription);
+      clearInterval(parcelCheckInterval);
     };
   }, [selectedDevice, navigate]);
 
@@ -74,59 +80,76 @@ export default function CompartmentPage() {
     }
   }
 
-  // Open the solenoid lock for 15 seconds
+  // Open the solenoid lock
   const openSolenoidLock = async () => {
     try {
-      const response = await fetch("http://<YOUR_RASPBERRY_PI_IP>:5000/open-lock", {
+      setCompartmentStatus("opening");
+      const response = await fetch("http://127.0.0.1:5000/open-lock", {
         method: "POST",
       });
       const result = await response.json();
       if (result.status === "success") {
-        setLockOpen(true);
-        startTimer();
+        setCompartmentStatus("open");
       } else {
         console.error("Failed to open lock:", result.message);
+        setCompartmentStatus("locked");
       }
     } catch (error) {
       console.error("Error opening lock:", error);
+      setCompartmentStatus("locked");
     }
-  };
-
-  // Start a 15-second timer
-  const startTimer = () => {
-    const interval = setInterval(() => {
-      setTimer((prev) => {
-        if (prev === 0) {
-          clearInterval(interval);
-          setLockOpen(false);
-          return 15;
-        }
-        return prev - 1;
-      });
-    }, 1000);
   };
 
   // Check if a parcel is detected
   const checkParcel = async () => {
     try {
-      const response = await fetch("http://<YOUR_RASPBERRY_PI_IP>:5000/check-parcel");
+      // Only check for parcel if compartment is open
+      if (compartmentStatus !== "open" && compartmentStatus !== "detecting") {
+        return;
+      }
+      
+      const response = await fetch("http://127.0.0.1:5000/check-parcel");
       const result = await response.json();
-      if (result.status === "success") {
-        setParcelDetected(result.parcel_detected);
-      } else {
-        console.error("Failed to check parcel:", result.message);
+      
+      if (result.status === "success" && result.parcel_detected) {
+        // If parcel is detected, start or continue the countdown
+        if (compartmentStatus !== "detecting") {
+          setCompartmentStatus("detecting");
+          setDetectionCountdown(2); // Start 2 second countdown
+        } else if (detectionCountdown > 0) {
+          setDetectionCountdown(prev => prev - 1);
+        } else {
+          // After 2 seconds of continuous detection, move to closing state and proceed
+          setCompartmentStatus("closing");
+          setTimeout(() => {
+            navigate("/closed"); // Navigate to the next page after showing closing animation
+          }, 1500); // Give time for the closing animation to play
+        }
+      } else if (compartmentStatus === "detecting") {
+        // Reset if detection is interrupted
+        setCompartmentStatus("open");
+        setDetectionCountdown(0);
       }
     } catch (error) {
       console.error("Error checking parcel:", error);
     }
   };
 
-  // Handle parcel placement confirmation
-  const handleParcelPlaced = () => {
-    if (parcelDetected) {
-      navigate("/closed"); // Navigate to the next page
-    } else {
-      alert("No parcel detected. Please place the parcel inside the compartment.");
+  // Render different instruction text based on compartment status
+  const renderInstructions = () => {
+    switch (compartmentStatus) {
+      case "locked":
+        return "Preparing compartment...";
+      case "opening":
+        return "Opening compartment...";
+      case "open":
+        return "Please place your parcel inside the compartment.";
+      case "detecting":
+        return `Parcel detected! Confirming placement... (${detectionCountdown}s)`;
+      case "closing":
+        return "Parcel confirmed. Securing compartment...";
+      default:
+        return "Please wait...";
     }
   };
 
@@ -151,32 +174,36 @@ export default function CompartmentPage() {
             </p>
           </div>
 
-          <div className="instructions">
+          {/* <div className="instructions">
             <p>Instructions</p>
             <ul>
-              <li>Scan Complete.</li>
-              <li>Confirmation Approved.</li>
-              <li>Please open the door and place the parcel inside.</li>
-              <li>Close it afterwards.</li>
-              <li>Press &apos;Continue&apos;</li>
+            
             </ul>
-          </div>
+          </div> */}
 
-          {!lockOpen ? (
-            <button className="btn" onClick={openSolenoidLock}>
-              Open Compartment
-            </button>
-          ) : (
-            <div>
-              <p>Compartment open for {timer} seconds...</p>
-              <button className="btn" onClick={checkParcel}>
-                Check Parcel
-              </button>
-              <button className="btn" onClick={handleParcelPlaced}>
-                Parcel Placed
-              </button>
+          <div className="compartment-status">
+            <p className="status-text">{renderInstructions()}</p>
+            
+            {/* Animated arrow pointing up when compartment is open */}
+            {compartmentStatus === "open" && (
+              <div className="arrow-container">
+                <div className="arrow-up">
+                  <span>↑</span>
+                </div>
+              </div>
+            )}
+            
+            {/* Status indicator */}
+            <div className={`status-indicator ${compartmentStatus}`}>
+              <span className="indicator-label">
+                {compartmentStatus === "locked" && "LOCKED"}
+                {compartmentStatus === "opening" && "OPENING"}
+                {compartmentStatus === "open" && "OPEN"}
+                {compartmentStatus === "detecting" && "DETECTING"}
+                {compartmentStatus === "closing" && "LOCKING"}
+              </span>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
