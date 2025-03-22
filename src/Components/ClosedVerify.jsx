@@ -13,9 +13,9 @@ export default function ClosedVerify() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsLoading(false); // Stop loading after 5 seconds
+      setIsLoading(false); // Stop loading after 12 seconds
       navigate("/received"); // Redirect to another file
-    }, 5000);
+    }, 12000);
 
     return () => clearTimeout(timer); // Cleanup the timer on component unmount
   }, [navigate]);

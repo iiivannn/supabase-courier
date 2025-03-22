@@ -28,23 +28,31 @@ body {
 /* Content wrapper */
 .content_wrapper {
   background: #fff;
-  color: #264027;
+  color: #575152;
   padding: 30px;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   text-align: center;
-  width: 700px;
+  width: 1300px;
 }
 
 /* Logo styling */
 .wrapper img {
-  width: 400px;
+  width: 500px;
   margin-bottom: 15px;
+}
+.received-wrapper p {
+  margin-top: 100px;
+  font-size: 90px;
+  font-weight: bold;
+  margin: 5px 0;
+  color: #40da57  ;
+  margin-bottom: 30px;
 }
 
 /* Title styling */
 .title p {
-  font-size: 18px;
+  font-size: 35px;
   font-weight: bold;
   margin: 5px 0;
 }
@@ -56,8 +64,8 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-
   align-items: center;
+  margin-bottom: 35px;
 }
 
 .get_user .error {
@@ -69,8 +77,9 @@ body {
   margin-bottom: 0;
   background-color: #ff3f3f;
   width: max-content;
-  padding: 5px 10px;
+  padding: 10px 20px;
   border-radius: 10px;
+  font-size: 30px;
   color: #fffbfb;
   font-weight: 550;
 }
@@ -85,7 +94,8 @@ body {
 
 .instructions p {
   font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 35px;
+  margin-bottom: 1px;
   text-decoration: underline 2px;
 }
 
@@ -96,7 +106,7 @@ body {
 
 .instructions li {
   margin-bottom: 5px;
-  font-size: 14px;
+  font-size: 34px;
 }
 
 /* Buttons */
@@ -107,12 +117,12 @@ body {
 }
 
 .btn {
-  padding: 10px 30px;
-  background-color: bisque;
+  padding: 30px 200px;
+  background-color: rgb(202, 186, 186);
   border-radius: 5px;
   border: none;
   font-weight: 700;
-  font-size: 1.1rem;
+  font-size: 1.7rem;
   text-transform: uppercase;
   font-family: "Poppins";
 }
@@ -253,12 +263,12 @@ body {
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 20px 40px;
-  font-size: 24px;
+  padding: 20px 70px;
+  font-size: 54px;
   font-weight: bold;
-  width: 80%;
-  max-width: 400px;
-  height: 150px;
+  width: 90%;
+  max-width: 1000px;
+  height: 250px;
   cursor: pointer;
   transition: background-color 0.3s;
 }
@@ -285,6 +295,10 @@ body {
   width: 80%;
   gap: 10px;
 }
+.kiosk-error {
+  font-size: 35px;
+  color: #c0392b;
+}
 
 .kiosk-pulse {
   width: 30px;
@@ -294,6 +308,10 @@ body {
   border-radius: 50%;
   margin: 10px;
   animation: pulse 1.5s infinite;
+}
+.kiosk-pulse-p{
+  font-size: 50px;
+
 }
 @keyframes pulse {
   0% {
@@ -320,6 +338,43 @@ body {
   width: 100%;
   text-align: center;
   min-height: 45px;
+}
+/* Success animation */
+@keyframes successAnimation {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-animation {
+  animation: successAnimation 2s infinite;
+  color: #40da57;
+  font-size: 90px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Camera icon styling */
+.camera-icon {
+  font-size: 100px;
+  color: #575152;
+  margin-bottom: 20px;
+}
+.countdown-timer {
+  margin-top: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff3f3f; /* Red color for emphasis */
+  text-align: center;
 }
 
 

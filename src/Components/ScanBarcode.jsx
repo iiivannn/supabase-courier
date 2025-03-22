@@ -93,7 +93,7 @@ export default function ScanBarcode() {
     };
   }, [isScanning]);
 
-  // Start a 6-second timer when scanning begins
+  // Start a 8-second timer when scanning begins
   useEffect(() => {
     let timer;
     if (isScanning) {
@@ -104,7 +104,7 @@ export default function ScanBarcode() {
           setIsScanning(false);
           setErrorMessage("No barcode scanned. Please try again.");
         }
-      }, 6000); // 6 seconds
+      }, 8000); // 8 seconds
     }
 
     return () => {
@@ -252,7 +252,7 @@ export default function ScanBarcode() {
             ) : (
               <div className="kiosk-scanning-active">
                 <div className="kiosk-pulse"></div>
-                <p>Please scan barcode now</p>
+                <p className="kiosk-pulse-p">Please scan barcode now of the Parcel AirWaybill</p>
                 <p className="kiosk-scanned-data">{scannedData}</p>
               </div>
             )}
