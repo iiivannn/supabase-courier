@@ -24,7 +24,7 @@ export default function ScanBarcode() {
   // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
     if (!selectedDevice) {
-      navigate("/login");
+      navigate("/start");
       return;
     }
 
@@ -83,7 +83,7 @@ export default function ScanBarcode() {
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (isScanning) {
-        setScannedData((prev) => prev + event.key);
+        setScannedData(event.key);
       }
     };
 
@@ -281,7 +281,7 @@ export default function ScanBarcode() {
             {/* Error message */}
             {errorMessage && <p className="kiosk-error">{errorMessage}</p>}
 
-            <button className="btn" onClick={() => navigate("/")}>
+            <button className="btn" onClick={() => navigate("/start")}>
               Main Page
             </button>
           </div>

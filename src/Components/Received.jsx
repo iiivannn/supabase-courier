@@ -21,7 +21,7 @@ export default function Received() {
 
   useEffect(() => {
     if (!selectedDevice) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 
@@ -159,7 +159,7 @@ export default function Received() {
           </div>
 
           <div className="buttons">
-            <button className="btn" onClick={() => navigate("/")}>
+            <button className="btn" onClick={() => navigate("/start")}>
               Exit
             </button>
             <button className="btn" onClick={() => navigate("/scan")}>
