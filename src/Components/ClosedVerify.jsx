@@ -29,7 +29,7 @@ export default function ClosedVerify() {
   // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
     if (!selectedDevice) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 

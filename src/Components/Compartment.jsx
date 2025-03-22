@@ -19,7 +19,7 @@ export default function CompartmentPage() {
   // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
     if (!selectedDevice) {
-      navigate("/login");
+      navigate("/");
       return;
     }
 
