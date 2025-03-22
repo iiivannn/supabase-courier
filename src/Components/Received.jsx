@@ -3,25 +3,28 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
 import "./styles.css";
 import logo from "../assets/parsafe_logo.png";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import CheckLogout from "./logout/checkLogout";
 
 export default function Received() {
   const navigate = useNavigate();
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [countdown, setCountdown] = useState(20); // Countdown starts at 20 seconds
 
-  // Get the selected device from localStorage
   const selectedDevice = localStorage.getItem("selectedDevice");
 
-  // Set up real-time subscription for changes to unit_devices table
+  // Inactivity timer setup
+  const [inactivityTimer, setInactivityTimer] = useState(null);
+
   useEffect(() => {
     if (!selectedDevice) {
       navigate("/");
       return;
     }
 
-    // Subscribe to changes for the selected device
     const subscription = supabase
       .channel("unit_devices_changes")
       .on(
@@ -39,7 +42,6 @@ export default function Received() {
       )
       .subscribe();
 
-    // Check for existing user when device is selected
     checkDeviceUser(selectedDevice);
 
     return () => {
@@ -47,7 +49,7 @@ export default function Received() {
     };
   }, [selectedDevice, navigate]);
 
-  // Check if the selected device has an associated user
+  // Function to check device user
   async function checkDeviceUser(deviceId) {
     try {
       const { data, error } = await supabase
@@ -61,6 +63,7 @@ export default function Received() {
         setDeviceUsername(null);
       } else if (data && data.username) {
         setDeviceUsername(data.username);
+        setShowSuccess(true);
       } else {
         setDeviceUsername(null);
       }
@@ -71,6 +74,47 @@ export default function Received() {
       setLoading(false);
     }
   }
+
+  // Function to reset the inactivity timer
+  const resetInactivityTimer = () => {
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+    setCountdown(20); // Reset countdown to 20 seconds
+    const newTimer = setTimeout(() => {
+      navigate("/scan"); // Redirect to /scan after 20 seconds of inactivity
+    }, 20000); // 20 seconds
+    setInactivityTimer(newTimer);
+  };
+
+  // Effect to handle user activity
+  useEffect(() => {
+    // Add event listeners for user activity
+    const events = ["mousemove", "mousedown", "keypress", "touchstart"];
+    events.forEach((event) => {
+      window.addEventListener(event, resetInactivityTimer);
+    });
+
+    // Initialize the timer
+    resetInactivityTimer();
+
+    // Start the countdown interval
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    // Cleanup event listeners, timer, and interval
+    return () => {
+      events.forEach((event) => {
+        window.removeEventListener(event, resetInactivityTimer);
+      });
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+      }
+      clearInterval(countdownInterval);
+    };
+  }, []);
+
   return (
     <div className="box">
       <CheckLogout deviceId={selectedDevice} />
@@ -92,17 +136,26 @@ export default function Received() {
             </p>
           </div>
 
+          {showSuccess && (
+            <div className="received-wrapper">
+              <p className="success-animation">Parcel Received!</p>
+            </div>
+          )}
+
           <div className="instructions">
             <p>Instructions</p>
+            <p>
+              <FontAwesomeIcon icon={faCamera} className="camera-icon" />
+            </p>
             <ul>
-              <li>Parcel Received!</li>
-              <li>To go back to Home Page, press &apos;Exit&apos;.</li>
-              <li>To deliver another item, press &apos;Deliver Again&apos;.</li>
-              <li>
-                Upon completion, open the compartment door and place the parcel.
-              </li>
-              <li>Wait until the process is complete.</li>
+              <li>Please take a Picture of the enclosed ParSafe!</li>
+              <li>Thank you for using ParSafe</li>
             </ul>
+          </div>
+
+          {/* Countdown Timer */}
+          <div className="countdown-timer">
+            <p>Redirecting to Scan in: {countdown} seconds</p>
           </div>
 
           <div className="buttons">
