@@ -77,9 +77,12 @@ export default function CompartmentPage() {
   // Open the solenoid lock for 15 seconds
   const openSolenoidLock = async () => {
     try {
-      const response = await fetch("http://<YOUR_RASPBERRY_PI_IP>:5000/open-lock", {
-        method: "POST",
-      });
+      const response = await fetch(
+        "http://<YOUR_RASPBERRY_PI_IP>:5000/open-lock",
+        {
+          method: "POST",
+        }
+      );
       const result = await response.json();
       if (result.status === "success") {
         setLockOpen(true);
@@ -109,7 +112,9 @@ export default function CompartmentPage() {
   // Check if a parcel is detected
   const checkParcel = async () => {
     try {
-      const response = await fetch("http://<YOUR_RASPBERRY_PI_IP>:5000/check-parcel");
+      const response = await fetch(
+        "http://<YOUR_RASPBERRY_PI_IP>:5000/check-parcel"
+      );
       const result = await response.json();
       if (result.status === "success") {
         setParcelDetected(result.parcel_detected);
@@ -126,7 +131,9 @@ export default function CompartmentPage() {
     if (parcelDetected) {
       navigate("/closed"); // Navigate to the next page
     } else {
-      alert("No parcel detected. Please place the parcel inside the compartment.");
+      alert(
+        "No parcel detected. Please place the parcel inside the compartment."
+      );
     }
   };
 
@@ -134,8 +141,8 @@ export default function CompartmentPage() {
     <div className="box">
       <CheckLogout deviceId={selectedDevice} />
       <div className="wrapper">
-        <img src={logo} alt="ParSafe Logo" />
         <div className="content_wrapper">
+          <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
             <p>Welcome to ParSafe</p>
             <p>Your Smart Parcel Receiver</p>
