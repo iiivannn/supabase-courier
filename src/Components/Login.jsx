@@ -19,13 +19,15 @@ export default function Login() {
       try {
         const { data, error } = await supabase
           .from("unit_devices")
-          .select("device_id")
-          .is("user_id", null)
-          .is("username", null);
+          .select("device_id, user_id, username, isOccupied");
         if (error) throw error;
-        console.log(data);
 
-        setDevices(data.map((item) => item.device_id));
+        // Filter devices based on the new isOccupied logic
+        const filteredDevices = data.filter(
+          (item) => !(item.user_id && item.username && item.isOccupied)
+        );
+
+        setDevices(filteredDevices.map((item) => item.device_id));
         setLoading(false);
       } catch (err) {
         console.error("Error fetching devices:", err.message);
@@ -170,17 +172,30 @@ export default function Login() {
   };
 
   // Handle login button click
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!selectedDevice || selectedDevice === "add_new") {
       setError("Please select a device");
       return;
     }
 
-    // Store selected device in localStorage for use in other components
-    localStorage.setItem("selectedDevice", selectedDevice);
+    try {
+      // Update the isOccupied column to true for the selected device
+      const { error } = await supabase
+        .from("unit_devices")
+        .update({ isOccupied: true })
+        .eq("device_id", selectedDevice);
 
-    // Navigate to start page
-    navigate("/start");
+      if (error) throw error;
+
+      // Store selected device in localStorage for use in other components
+      localStorage.setItem("selectedDevice", selectedDevice);
+
+      // Navigate to start page
+      navigate("/start");
+    } catch (err) {
+      console.error("Error updating device status:", err.message);
+      setError("Failed to update device status");
+    }
   };
 
   if (loading) {
