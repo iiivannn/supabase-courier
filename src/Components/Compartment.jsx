@@ -1,28 +1,113 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
 import "./styles.css";
 import logo from "../assets/parsafe_logo.png";
 import CheckLogout from "./logout/checkLogout";
 
+// Status constants for better maintainability
+const STATUS = {
+  LOCKED: "locked",
+  OPENING: "opening",
+  OPEN: "open",
+  DETECTING: "detecting",
+  CLOSING: "closing"
+};
+
 export default function CompartmentPage() {
   const navigate = useNavigate();
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [compartmentStatus, setCompartmentStatus] = useState("locked"); // "locked", "opening", "open", "detecting", "closing"
-  const [detectionCountdown, setDetectionCountdown] = useState(0);
+  const [compartmentStatus, setCompartmentStatus] = useState(STATUS.LOCKED);
+  const [lastDetection, setLastDetection] = useState(null);
 
-  // Get the selected device from localStorage
   const selectedDevice = localStorage.getItem("selectedDevice");
 
-  // Set up real-time subscription for changes to unit_devices table
+  // Memoized API call functions
+  const checkDeviceUser = useCallback(async (deviceId) => {
+    try {
+      const { data, error } = await supabase
+        .from("unit_devices")
+        .select("username")
+        .eq("device_id", deviceId)
+        .single();
+
+      if (error) throw error;
+      setDeviceUsername(data?.username || null);
+    } catch (err) {
+      console.error("Error checking device user:", err);
+      setDeviceUsername(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const openSolenoidLock = useCallback(async () => {
+    try {
+      setCompartmentStatus(STATUS.OPENING);
+      const response = await fetch("http://127.0.0.1:5000/open-lock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      if (!response.ok) throw new Error("Failed to open lock");
+      
+      const result = await response.json();
+      if (result.status === "success") {
+        setCompartmentStatus(STATUS.OPEN);
+      } else {
+        throw new Error(result.message || "Lock opening failed");
+      }
+    } catch (error) {
+      console.error("Lock error:", error);
+      setCompartmentStatus(STATUS.LOCKED);
+    }
+  }, []);
+
+  const closeSolenoidLock = useCallback(async () => {
+    try {
+      setCompartmentStatus(STATUS.CLOSING);
+      const response = await fetch("http://127.0.0.1:5000/close-lock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      if (!response.ok) throw new Error("Failed to close lock");
+      
+      setTimeout(() => navigate("/closed"), 1000);
+    } catch (error) {
+      console.error("Lock error:", error);
+    }
+  }, [navigate]);
+
+  const checkParcel = useCallback(async () => {
+    try {
+      // Only check when compartment is open
+      if (compartmentStatus !== STATUS.OPEN) return;
+      
+      const response = await fetch("http://127.0.0.1:5000/check-parcel");
+      if (!response.ok) throw new Error("Sensor check failed");
+      
+      const result = await response.json();
+      setLastDetection(result);
+      
+      if (result.status === "success" && result.parcel_detected) {
+        // Immediate close when parcel detected
+        await closeSolenoidLock();
+      }
+    } catch (error) {
+      console.error("Parcel check error:", error);
+    }
+  }, [compartmentStatus, closeSolenoidLock]);
+
+  // Main effect for component setup
   useEffect(() => {
     if (!selectedDevice) {
       navigate("/");
       return;
     }
 
-    // Subscribe to changes for the selected device
+    // Setup Supabase subscription
     const subscription = supabase
       .channel("unit_devices_changes")
       .on(
@@ -34,123 +119,29 @@ export default function CompartmentPage() {
           filter: `device_id=eq.${selectedDevice}`,
         },
         (payload) => {
-          console.log("Change received!", payload);
           checkDeviceUser(selectedDevice);
         }
       )
       .subscribe();
 
-    // Check for existing user when device is selected
+    // Initial setup
     checkDeviceUser(selectedDevice);
-
-    // Automatically open the solenoid lock when component loads
     openSolenoidLock();
 
-    // Start interval for checking parcel detection
+    // Setup parcel checking with cleanup
     const parcelCheckInterval = setInterval(checkParcel, 1000);
-
     return () => {
       supabase.removeChannel(subscription);
       clearInterval(parcelCheckInterval);
     };
-  }, [selectedDevice, navigate]);
+  }, [selectedDevice, navigate, checkDeviceUser, openSolenoidLock, checkParcel]);
 
-  // Check if the selected device has an associated user
-  async function checkDeviceUser(deviceId) {
-    try {
-      const { data, error } = await supabase
-        .from("unit_devices")
-        .select("username")
-        .eq("device_id", deviceId)
-        .single();
-
-      if (error) {
-        console.error("Error checking device user:", error.message);
-        setDeviceUsername(null);
-      } else if (data && data.username) {
-        setDeviceUsername(data.username);
-      } else {
-        setDeviceUsername(null);
-      }
-    } catch (err) {
-      console.error("Error checking device user:", err.message);
-      setDeviceUsername(null);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Open the solenoid lock
-  const openSolenoidLock = async () => {
-    try {
-      setCompartmentStatus("opening");
-      const response = await fetch("http://127.0.0.1:5000/open-lock", {
-        method: "POST",
-      });
-      const result = await response.json();
-      if (result.status === "success") {
-        setCompartmentStatus("open");
-      } else {
-        console.error("Failed to open lock:", result.message);
-        setCompartmentStatus("locked");
-      }
-    } catch (error) {
-      console.error("Error opening lock:", error);
-      setCompartmentStatus("locked");
-    }
-  };
-
-  // Check if a parcel is detected
-  const checkParcel = async () => {
-    try {
-      // Only check for parcel if compartment is open
-      if (compartmentStatus !== "open" && compartmentStatus !== "detecting") {
-        return;
-      }
-      
-      const response = await fetch("http://127.0.0.1:5000/check-parcel");
-      const result = await response.json();
-      
-      if (result.status === "success" && result.parcel_detected) {
-        // If parcel is detected, start or continue the countdown
-        if (compartmentStatus !== "detecting") {
-          setCompartmentStatus("detecting");
-          setDetectionCountdown(2); // Start 2 second countdown
-        } else if (detectionCountdown > 0) {
-          setDetectionCountdown(prev => prev - 1);
-        } else {
-          // After 2 seconds of continuous detection, move to closing state and proceed
-          setCompartmentStatus("closing");
-          setTimeout(() => {
-            navigate("/closed"); // Navigate to the next page after showing closing animation
-          }, 1500); // Give time for the closing animation to play
-        }
-      } else if (compartmentStatus === "detecting") {
-        // Reset if detection is interrupted
-        setCompartmentStatus("open");
-        setDetectionCountdown(0);
-      }
-    } catch (error) {
-      console.error("Error checking parcel:", error);
-    }
-  };
-
-  // Render different instruction text based on compartment status
-  const renderInstructions = () => {
-    switch (compartmentStatus) {
-      case "locked":
-        return "Preparing compartment...";
-      case "opening":
-        return "Opening compartment...";
-      case "open":
-        return "Please place your parcel inside the compartment.";
-      case "detecting":
-        return `Parcel detected! Confirming placement... (${detectionCountdown}s)`;
-      case "closing":
-        return "Parcel confirmed. Securing compartment...";
-      default:
-        return "Please wait...";
-    }
+  // Status text mapping
+  const statusMessages = {
+    [STATUS.LOCKED]: "Preparing compartment...",
+    [STATUS.OPENING]: "Opening compartment...",
+    [STATUS.OPEN]: "Please place your parcel inside the compartment.",
+    [STATUS.CLOSING]: "Parcel detected. Securing compartment...",
   };
 
   return (
@@ -168,24 +159,16 @@ export default function CompartmentPage() {
             <p>Device ID: {selectedDevice}</p>
             <p>
               ParSafe User:{" "}
-              {loading
-                ? "Loading..."
-                : deviceUsername || "No user associated with selected device"}
+              {loading ? "Loading..." : deviceUsername || "No user associated"}
             </p>
           </div>
-
-          {/* <div className="instructions">
-            <p>Instructions</p>
-            <ul>
-            
-            </ul>
-          </div> */}
-
+          
           <div className="compartment-status">
-            <p className="status-text">{renderInstructions()}</p>
+            <p className="status-text">
+              {statusMessages[compartmentStatus] || "Please wait..."}
+            </p>
             
-            {/* Animated arrow pointing up when compartment is open */}
-            {compartmentStatus === "open" && (
+            {compartmentStatus === STATUS.OPEN && (
               <div className="arrow-container">
                 <div className="arrow-up">
                   <span>↑</span>
@@ -193,14 +176,9 @@ export default function CompartmentPage() {
               </div>
             )}
             
-            {/* Status indicator */}
             <div className={`status-indicator ${compartmentStatus}`}>
               <span className="indicator-label">
-                {compartmentStatus === "locked" && "LOCKED"}
-                {compartmentStatus === "opening" && "OPENING"}
-                {compartmentStatus === "open" && "OPEN"}
-                {compartmentStatus === "detecting" && "DETECTING"}
-                {compartmentStatus === "closing" && "LOCKING"}
+                {compartmentStatus.toUpperCase()}
               </span>
             </div>
           </div>
@@ -208,4 +186,5 @@ export default function CompartmentPage() {
       </div>
     </div>
   );
-}
+} 
+//working version
