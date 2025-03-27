@@ -43,26 +43,27 @@ export default function CompartmentPage() {
   }, []);
 
   const openSolenoidLock = useCallback(async () => {
+    if (compartmentStatus !== STATUS.LOCKED) return; // Prevent duplicate call
+  
     try {
       setCompartmentStatus(STATUS.OPENING);
       const response = await fetch("http://127.0.0.1:5000/open-lock", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
-      
+  
       if (!response.ok) throw new Error("Failed to open lock");
-      
+  
       const result = await response.json();
-      if (result.status === "success") {
+      if (result.status === "success" && result.lock_open) {
         setCompartmentStatus(STATUS.OPEN);
-      } else {
-        throw new Error(result.message || "Lock opening failed");
       }
     } catch (error) {
       console.error("Lock error:", error);
       setCompartmentStatus(STATUS.LOCKED);
     }
-  }, []);
+  }, [compartmentStatus]); // Dependency to prevent unnecessary re-renders
+  
 
   const closeSolenoidLock = useCallback(async () => {
     try {

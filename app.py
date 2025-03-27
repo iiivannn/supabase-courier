@@ -49,27 +49,30 @@ def monitor_sensors():
                 if current_detection:
                     last_detection_time = time.time()
                     
-                    # Auto-close if lock is open and parcel detected
-                    if not lock_status:
-                        close_lock()
+                    # # Auto-close if lock is open and parcel detected
+                    # if not lock_status:
+                    #     close_lock()
                         
         except Exception as e:
             print(f"Sensor monitoring error: {e}")
             
-        time.sleep(0.1)  # 100ms between checks
+        time.sleep(0.3)  # 300ms between checks
 
 # Start sensor thread
 sensor_thread = threading.Thread(target=monitor_sensors)
 sensor_thread.daemon = True
 sensor_thread.start()
 
+
 def close_lock():
-    """Close the lock and update state"""
+    """Close the lock and ensure it stays closed."""
     global lock_status
     with data_lock:
-        GPIO.output(SOLENOID_PIN, GPIO.HIGH)
-        lock_status = False
-    print("[LOCK] Lock closed")
+        if lock_status:
+            GPIO.output(SOLENOID_PIN, GPIO.HIGH)
+            lock_status = False
+            time.sleep(1.0)  # Small delay to ensure stability after closing
+            print("[LOCK] Lock closed")
 
 @app.route('/open-lock', methods=['POST'])
 def open_lock():
@@ -89,6 +92,8 @@ def open_lock():
             "status": "error",
             "message": str(e)
         }), 500
+
+
 
 @app.route('/close-lock', methods=['POST'])
 def api_close_lock():
