@@ -88,8 +88,8 @@ export default function ClosedVerify() {
     <div className="box">
       <CheckLogout deviceId={selectedDevice} />
       <div className="wrapper">
-        <img src={logo} alt="ParSafe Logo" />
         <div className="content_wrapper">
+          <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
             <p>Welcome to ParSafe</p>
             <p>Your Smart Parcel Receiver</p>
