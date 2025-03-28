@@ -8,6 +8,75 @@ body {
   font-family: "Poppins", sans-serif;
 }
 
+/* Device Registration */
+.device-selector-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #d6d2c4;
+  font-family: "Poppins", sans-serif;
+}
+
+.device-selector-form {
+  background: #fff;
+  color: #575152;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+}
+
+.device-selector-form h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #575152;
+}
+
+.device-dropdown {
+  margin-bottom: 20px;
+}
+
+.device-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  appearance: none;
+  background-color: #f9f9f9;
+}
+
+.device-status {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #575152;
+}
+
+.login-button {
+  width: 100%;
+  padding: 15px;
+  background-color: #ea573e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.login-button:hover:not(:disabled) {
+  background-color: #4c0707;
+}
+
 /* Main container */
 .box {
   display: flex;
@@ -201,7 +270,37 @@ body {
   margin-bottom: 15px;
 }
 
-@media screen and (max-width: 800px) and (max-height: 600px) {
+@media screen and (max-width: 1100px) and (max-height: 800px) {
+  /* Device Registration */
+  .device-selector-container {
+    padding: 15px;
+  }
+
+  .device-selector-form {
+    width: 80vw;
+    padding: 20px;
+  }
+
+  .device-selector-form h2 {
+    font-size: 18px;
+    margin-bottom: 15px;
+  }
+
+  .device-select {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .device-status {
+    font-size: 12px;
+    margin-bottom: 15px;
+  }
+
+  .login-button {
+    font-size: 16px;
+    padding: 10px;
+  }
+
   .logo {
     display: block;
     width: 170px;
