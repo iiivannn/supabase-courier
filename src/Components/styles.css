@@ -375,3 +375,115 @@ body {
     margin: 0 0 10px;
   }
 }
+/* Add these styles to your styles.css file */
+
+.compartment-status {
+  text-align: center;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-text {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.arrow-container {
+  height: 50px;
+  margin: 10px 0;
+}
+
+.arrow-up {
+  animation: bounce 1.5s infinite;
+}
+
+.arrow-up span {
+  font-size: 36px;
+  color: #4CAF50;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-20px);
+  }
+  60% {
+    transform: translateY(-10px);
+  }
+}
+
+.status-indicator {
+  width: 150px;
+  height: 40px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.indicator-label {
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-indicator.locked {
+  background-color: #f44336;
+  animation: pulse 2s infinite;
+}
+
+.status-indicator.opening {
+  background-color: #FFA500;
+  animation: blink 1s infinite;
+}
+
+.status-indicator.open {
+  background-color: #4CAF50;
+}
+
+.status-indicator.detecting {
+  background-color: #2196F3;
+  animation: pulse 1s infinite;
+}
+
+.status-indicator.closing {
+  background-color: #f44336;
+  animation: blink 0.7s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
