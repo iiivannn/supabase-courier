@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabase";
@@ -11,7 +12,7 @@ const STATUS = {
   OPENING: "opening",
   OPEN: "open",
   DETECTING: "detecting",
-  CLOSING: "closing"
+  CLOSING: "closing",
 };
 
 export default function CompartmentPage() {
@@ -44,16 +45,16 @@ export default function CompartmentPage() {
 
   const openSolenoidLock = useCallback(async () => {
     if (compartmentStatus !== STATUS.LOCKED) return; // Prevent duplicate call
-  
+
     try {
       setCompartmentStatus(STATUS.OPENING);
       const response = await fetch("http://127.0.0.1:5000/open-lock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
-  
+
       if (!response.ok) throw new Error("Failed to open lock");
-  
+
       const result = await response.json();
       if (result.status === "success" && result.lock_open) {
         setCompartmentStatus(STATUS.OPEN);
@@ -63,18 +64,17 @@ export default function CompartmentPage() {
       setCompartmentStatus(STATUS.LOCKED);
     }
   }, [compartmentStatus]); // Dependency to prevent unnecessary re-renders
-  
 
   const closeSolenoidLock = useCallback(async () => {
     try {
       setCompartmentStatus(STATUS.CLOSING);
       const response = await fetch("http://127.0.0.1:5000/close-lock", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }
+        headers: { "Content-Type": "application/json" },
       });
-      
+
       if (!response.ok) throw new Error("Failed to close lock");
-      
+
       setTimeout(() => navigate("/closed"), 1000);
     } catch (error) {
       console.error("Lock error:", error);
@@ -85,13 +85,13 @@ export default function CompartmentPage() {
     try {
       // Only check when compartment is open
       if (compartmentStatus !== STATUS.OPEN) return;
-      
+
       const response = await fetch("http://127.0.0.1:5000/check-parcel");
       if (!response.ok) throw new Error("Sensor check failed");
-      
+
       const result = await response.json();
       setLastDetection(result);
-      
+
       if (result.status === "success" && result.parcel_detected) {
         // Immediate close when parcel detected
         await closeSolenoidLock();
@@ -135,7 +135,13 @@ export default function CompartmentPage() {
       supabase.removeChannel(subscription);
       clearInterval(parcelCheckInterval);
     };
-  }, [selectedDevice, navigate, checkDeviceUser, openSolenoidLock, checkParcel]);
+  }, [
+    selectedDevice,
+    navigate,
+    checkDeviceUser,
+    openSolenoidLock,
+    checkParcel,
+  ]);
 
   // Status text mapping
   const statusMessages = {
@@ -152,8 +158,7 @@ export default function CompartmentPage() {
         <div className="content_wrapper">
           <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
-            <p>Welcome to ParSafe</p>
-            <p>Your Smart Parcel Receiver</p>
+            <p>Welcome to ParSafe!</p>
           </div>
 
           <div className="get_user">
@@ -163,12 +168,12 @@ export default function CompartmentPage() {
               {loading ? "Loading..." : deviceUsername || "No user associated"}
             </p>
           </div>
-          
+
           <div className="compartment-status">
             <p className="status-text">
               {statusMessages[compartmentStatus] || "Please wait..."}
             </p>
-            
+
             {compartmentStatus === STATUS.OPEN && (
               <div className="arrow-container">
                 <div className="arrow-up">
@@ -176,7 +181,7 @@ export default function CompartmentPage() {
                 </div>
               </div>
             )}
-            
+
             <div className={`status-indicator ${compartmentStatus}`}>
               <span className="indicator-label">
                 {compartmentStatus.toUpperCase()}
@@ -187,5 +192,5 @@ export default function CompartmentPage() {
       </div>
     </div>
   );
-} 
+}
 //working version

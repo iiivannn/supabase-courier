@@ -91,8 +91,7 @@ export default function ClosedVerify() {
         <div className="content_wrapper">
           <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
-            <p>Welcome to ParSafe</p>
-            <p>Your Smart Parcel Receiver</p>
+            <p>Welcome to ParSafe!</p>
           </div>
           <div className="get_user">
             <p>Device ID: {selectedDevice}</p>
@@ -108,7 +107,9 @@ export default function ClosedVerify() {
             {isLoading ? (
               <>
                 <p>Parcel being processed. Please wait.</p>
-                <Loading /> {/* Show loading animation */}
+                <div className="loading-animation">
+                  <Loading /> {/* Show loading animation */}
+                </div>
               </>
             ) : (
               <button onClick={() => navigate("/received")}>Finish</button>

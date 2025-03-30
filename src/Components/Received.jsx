@@ -123,8 +123,7 @@ export default function Received() {
         <div className="content_wrapper">
           <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
-            <p>Welcome to ParSafe</p>
-            <p>Your Smart Parcel Receiver</p>
+            <p>Thank you for using ParSafe!</p>
           </div>
 
           <div className="get_user">
@@ -149,8 +148,7 @@ export default function Received() {
               <FontAwesomeIcon icon={faCamera} className="camera-icon" />
             </p>
             <ul>
-              <li>Please take a Picture of the enclosed ParSafe!</li>
-              <li>Thank you for using ParSafe</li>
+              <li>Please take a picture of the enclosed ParSafe!</li>
             </ul>
           </div>
 
