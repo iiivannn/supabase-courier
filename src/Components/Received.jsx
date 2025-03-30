@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
@@ -119,8 +120,8 @@ export default function Received() {
     <div className="box">
       <CheckLogout deviceId={selectedDevice} />
       <div className="wrapper">
-        <img src={logo} alt="ParSafe Logo" />
         <div className="content_wrapper">
+          <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
             <p>Welcome to ParSafe</p>
             <p>Your Smart Parcel Receiver</p>

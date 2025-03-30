@@ -24,7 +24,8 @@ export default function ScanBarcode() {
   // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
     if (!selectedDevice) {
-      navigate("/start");
+      navigate("/");
+
       return;
     }
 
@@ -83,7 +84,7 @@ export default function ScanBarcode() {
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (isScanning) {
-        setScannedData(event.key);
+        setScannedData((prev) => (prev + event.key));
       }
     };
 
@@ -93,7 +94,7 @@ export default function ScanBarcode() {
     };
   }, [isScanning]);
 
-  // Start a 8-second timer when scanning begins
+  
   useEffect(() => {
     let timer;
     if (isScanning) {
@@ -104,7 +105,7 @@ export default function ScanBarcode() {
           setIsScanning(false);
           setErrorMessage("No barcode scanned. Please try again.");
         }
-      }, 8000); // 8 seconds
+      }, 10000); // 10 seconds
     }
 
     return () => {
@@ -170,7 +171,9 @@ export default function ScanBarcode() {
       // Insert scan record regardless of whether we found a pending order
       const { error: insertError } = await supabase
         .from("courier")
-        .insert([{ scanned_barcode: scannedData.trim(), scanned_at: new Date() }]);
+        .insert([
+          { scanned_barcode: scannedData.trim(), scanned_at: new Date() },
+        ]);
 
       if (insertError) {
         setErrorMessage("Error inserting scan record: " + insertError.message);
@@ -214,9 +217,8 @@ export default function ScanBarcode() {
     <div className="box">
       <CheckLogout deviceId={selectedDevice} />
       <div className="wrapper">
-        <img src={logo} alt="ParSafe Logo" />
-
         <div className="content_wrapper">
+          <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
             <p>Welcome to ParSafe</p>
             <p>Your Smart Parcel Receiver</p>
@@ -252,7 +254,9 @@ export default function ScanBarcode() {
             ) : (
               <div className="kiosk-scanning-active">
                 <div className="kiosk-pulse"></div>
-                <p className="kiosk-pulse-p">Please scan barcode now of the Parcel AirWaybill</p>
+                <p className="kiosk-pulse-p">
+                  Please scan barcode now of the Parcel AirWaybill
+                </p>
                 <p className="kiosk-scanned-data">{scannedData}</p>
               </div>
             )}
