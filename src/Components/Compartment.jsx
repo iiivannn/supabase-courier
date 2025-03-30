@@ -148,7 +148,7 @@ export default function CompartmentPage() {
     [STATUS.LOCKED]: "Preparing compartment...",
     [STATUS.OPENING]: "Opening compartment...",
     [STATUS.OPEN]: "Please place your parcel inside the compartment.",
-    [STATUS.CLOSING]: "Parcel detected. Securing compartment...",
+    [STATUS.CLOSING]: "Securing compartment...",
   };
 
   return (
