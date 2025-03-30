@@ -80,8 +80,7 @@ export default function StartPage() {
         <div className="content_wrapper">
           <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
-            <p>Welcome to ParSafe</p>
-            <p>Your Smart Parcel Receiver</p>
+            <p>Welcome to ParSafe!</p>
           </div>
 
           <div className="get_user">
@@ -98,15 +97,10 @@ export default function StartPage() {
             <p>Instructions</p>
             <ul>
               <li>
-                Check if the ParSafe User matches the Parcel Customer Name
-              </li>
-              <li>
                 Click the &apos;Start&apos; below to start the deliver process.
               </li>
               <li>Scan the parcel using the outside scanner.</li>
-              <li>
-                Upon completion, open the compartment door and place the parcel.
-              </li>
+              <li>Open the compartment door and place the parcel.</li>
               <li>Wait until the process is complete.</li>
             </ul>
           </div>

@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { supabase } from "../supabase";
 import logo from "../assets/parsafe_logo.png";
@@ -84,7 +86,7 @@ export default function ScanBarcode() {
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (isScanning) {
-        setScannedData((prev) => (prev + event.key));
+        setScannedData((prev) => prev + event.key);
       }
     };
 
@@ -94,7 +96,6 @@ export default function ScanBarcode() {
     };
   }, [isScanning]);
 
-  
   useEffect(() => {
     let timer;
     if (isScanning) {
@@ -220,8 +221,7 @@ export default function ScanBarcode() {
         <div className="content_wrapper">
           <img className="logo" src={logo} alt="ParSafe Logo" />
           <div className="title">
-            <p>Welcome to ParSafe</p>
-            <p>Your Smart Parcel Receiver</p>
+            <p>Welcome to ParSafe!</p>
           </div>
 
           <div className="get_user">
@@ -243,6 +243,9 @@ export default function ScanBarcode() {
           </div>
 
           <div className="kiosk-scan-section">
+            {/* Error message */}
+            {errorMessage && <p className="kiosk-error">{errorMessage}</p>}
+
             {!isScanning ? (
               <button
                 className="kiosk-scan-button"
@@ -281,9 +284,6 @@ export default function ScanBarcode() {
                 {statusMessage}
               </p>
             )}
-
-            {/* Error message */}
-            {errorMessage && <p className="kiosk-error">{errorMessage}</p>}
 
             <button className="btn" onClick={() => navigate("/start")}>
               Main Page
