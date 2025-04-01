@@ -19,6 +19,8 @@ export default function ScanBarcode() {
   const [scannedData, setScannedData] = useState("");
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false); // Modal visibility state
+  const [manualInput, setManualInput] = useState(""); // State for manual input
 
   // Get the selected device from localStorage
   const selectedDevice = localStorage.getItem("selectedDevice");
@@ -114,12 +116,28 @@ export default function ScanBarcode() {
     };
   }, [isScanning, scannedData]);
 
+  useEffect(() => {
+    if (statusMessage || errorMessage) {
+      setShowModal(true); // Show modal when a status or error message is set
+
+      // Automatically close the modal after 3 seconds
+      const timer = setTimeout(() => {
+        setShowModal(false);
+        setStatusMessage(""); // Clear the status message
+        setErrorMessage(""); // Clear the error message
+      }, 3000);
+
+      return () => clearTimeout(timer); // Cleanup the timer
+    }
+  }, [statusMessage, errorMessage]);
+
   const startScanning = () => {
     // Clear previous messages
     setMessage("");
     setStatusMessage("");
     setErrorMessage("");
     setScannedData("");
+    setManualInput(""); // Clear manual input field
     setIsScanning(true);
   };
 
@@ -187,18 +205,18 @@ export default function ScanBarcode() {
 
       // Check if we found any matching orders at all
       if (!allOrders || allOrders.length === 0) {
-        setStatusMessage("❌ No orders found with this barcode at all.");
+        setStatusMessage("No orders found with this barcode.");
       }
       // Check if we found matching orders, but none are pending
       else if (!pendingOrders || pendingOrders.length === 0) {
         setStatusMessage(
-          `⚠️ Order found but status is "${allOrders[0].status}" instead of "pending".`
+          `Order found but status is "${allOrders[0].status}" instead of "pending".`
         );
       }
       // We found a pending order with matching barcode
       else {
         setStatusMessage(
-          `✅ Barcode matched with pending order! Status will be updated to completed.`
+          `Barcode matched with pending order! Status will be updated to completed.`
         );
 
         // Add a slight delay before navigation
@@ -214,8 +232,42 @@ export default function ScanBarcode() {
     }
   };
 
+  const handleManualSubmit = () => {
+    setScannedData(manualInput.trim());
+    setManualInput("");
+    handleScan();
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setStatusMessage(""); // Clear the status message when modal is closed
+  };
+
   return (
     <div className="box">
+      {/* Modal Notification */}
+      {showModal && (
+        <div className="modal">
+          <div
+            className={`modal-content ${
+              statusMessage.includes("matched")
+                ? "success"
+                : statusMessage.includes("No orders found") || errorMessage
+                ? "error"
+                : "warning"
+            }`}
+          >
+            <button className="modal-close-x" onClick={closeModal}>
+              &times;
+            </button>
+            <p className="modal-msg">{errorMessage || statusMessage}</p>
+            <button className="modal-close-button" onClick={closeModal}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       <CheckLogout deviceId={selectedDevice} />
       <div className="wrapper">
         <div className="content_wrapper">
@@ -265,29 +317,18 @@ export default function ScanBarcode() {
             )}
 
             {/* Loading Animation */}
-            {isLoading && <Loading />}
-
-            {/* Success message for database insertion */}
-            {message && <p className="kiosk-success">{message}</p>}
-
-            {/* Status message for barcode matching result */}
-            {statusMessage && (
-              <p
-                className={`kiosk-status ${
-                  statusMessage.includes("✅")
-                    ? "success"
-                    : statusMessage.includes("❌")
-                    ? "error"
-                    : "warning"
-                }`}
-              >
-                {statusMessage}
-              </p>
+            {isLoading && (
+              <div className="scan-loading">
+                <Loading />
+              </div>
             )}
 
-            <button className="btn" onClick={() => navigate("/start")}>
-              Main Page
-            </button>
+            {/* Hide Main Page button when loading */}
+            {!isLoading && (
+              <button className="btn" onClick={() => navigate("/start")}>
+                Main Page
+              </button>
+            )}
           </div>
         </div>
       </div>
