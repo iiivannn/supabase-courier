@@ -147,14 +147,16 @@ export default function Received() {
             <p>
               <FontAwesomeIcon icon={faCamera} className="camera-icon" />
             </p>
-            <ul>
-              <li>Please take a picture of the enclosed ParSafe!</li>
+            <ul className="inst-ul">
+              <li className="inst-li">
+                Please take a picture of the enclosed ParSafe!
+              </li>
             </ul>
           </div>
 
           {/* Countdown Timer */}
           <div className="countdown-timer">
-            <p>Redirecting to Scan in: {countdown} seconds</p>
+            <p className="timer">Redirecting to Scan in: {countdown} seconds</p>
           </div>
 
           <div className="buttons">

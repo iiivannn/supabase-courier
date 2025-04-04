@@ -170,10 +170,10 @@ body {
 .instructions ul {
   padding-left: 20px;
   text-align: left;
+  margin-bottom: 0;
 }
 
 .instructions li {
-  margin-bottom: 5px;
   font-size: 0.95rem;
 }
 
@@ -280,7 +280,6 @@ body {
   color: #40da57;
   font-size: 48px;
   font-weight: bold;
-  margin-bottom: 15px;
 }
 
 .camera-icon {
@@ -345,7 +344,8 @@ body {
   }
 
   .received-wrapper p {
-    font-size: 0.95;
+    font-size: 0.95 !important;
+    margin: 0;
   }
 
   .instructions {
@@ -398,10 +398,9 @@ body {
 
   .countdown-timer p {
     font-size: 1rem;
-    margin: 20px 0 10px;
+    margin: 0;
   }
 }
-/* Add these styles to your styles.css file */
 
 .compartment-status {
   text-align: center;
@@ -577,4 +576,12 @@ body {
 
 .modal-msg {
   color: black;
+}
+
+.modal-close-x {
+  background-color: transparent;
+  border: none;
+  position: relative;
+  top: -2vh;
+  right: -27vw;
 }

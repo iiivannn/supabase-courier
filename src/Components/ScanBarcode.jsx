@@ -125,7 +125,7 @@ export default function ScanBarcode() {
         setShowModal(false);
         setStatusMessage(""); // Clear the status message
         setErrorMessage(""); // Clear the error message
-      }, 3000);
+      }, 30000);
 
       return () => clearTimeout(timer); // Cleanup the timer
     }
