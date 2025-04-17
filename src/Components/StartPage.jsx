@@ -84,7 +84,7 @@ export default function StartPage() {
           </div>
 
           <div className="get_user">
-            <p>Device ID: {selectedDevice}</p>
+            <p>{selectedDevice}</p>
             <p>
               ParSafe User:{" "}
               {loading

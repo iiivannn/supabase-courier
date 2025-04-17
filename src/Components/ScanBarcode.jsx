@@ -480,7 +480,7 @@ export default function ScanBarcode() {
           </div>
 
           <div className="get_user">
-            <p>Device ID: {selectedDevice}</p>
+            <p>{selectedDevice}</p>
             <p>
               ParSafe User:{" "}
               {loading
