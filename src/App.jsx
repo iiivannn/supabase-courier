@@ -18,7 +18,6 @@ function AppRoutes() {
   useEffect(() => {
     const checkDeviceSelected = () => {
       const selectedDevice = localStorage.getItem("selectedDevice");
-      // Only redirect to login if no device is selected
       if (!selectedDevice) {
         navigate("/");
       }

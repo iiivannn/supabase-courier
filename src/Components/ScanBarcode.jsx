@@ -3,41 +3,38 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabase";
 import logo from "../assets/parsafe_logo.png";
-import Loading from "../loading/loading"; // Import the Loading component
+import Loading from "../loading/loading";
 import CheckLogout from "./logout/checkLogout";
 import { useNavigate } from "react-router-dom";
 import "./styles.css";
 
 export default function ScanBarcode() {
-  const navigate = useNavigate(); // For navigating between pages
+  const navigate = useNavigate();
   const [barcode, setBarcode] = useState("");
   const [message, setMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scannedData, setScannedData] = useState("");
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false); // Modal visibility state
-  const [modalTitle, setModalTitle] = useState(""); // Added modal title state
-  const [manualInput, setManualInput] = useState(""); // State for manual input
-  const [isOversizedScan, setIsOversizedScan] = useState(false); // State to track oversized scan
-  const [scanComplete, setScanComplete] = useState(false); // State to track when a scan is complete
-  const [showManualInput, setShowManualInput] = useState(false); // State to toggle manual input visibility
-  const [isOversizedSuccess, setIsOversizedSuccess] = useState(false); // Track if oversized scan was successful
+  const [showModal, setShowModal] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [manualInput, setManualInput] = useState("");
+  const [isOversizedScan, setIsOversizedScan] = useState(false);
+  const [scanComplete, setScanComplete] = useState(false);
+  const [showManualInput, setShowManualInput] = useState(false);
+  const [isOversizedSuccess, setIsOversizedSuccess] = useState(false);
 
-  // Get the selected device from localStorage
   const selectedDevice = localStorage.getItem("selectedDevice");
 
-  // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
     if (!selectedDevice) {
       navigate("/");
       return;
     }
 
-    // Subscribe to changes for the selected device
     const subscription = supabase
       .channel("unit_devices_changes")
       .on(
@@ -55,7 +52,6 @@ export default function ScanBarcode() {
       )
       .subscribe();
 
-    // Check for existing user when device is selected
     checkDeviceUser(selectedDevice);
 
     return () => {
@@ -63,7 +59,6 @@ export default function ScanBarcode() {
     };
   }, [selectedDevice, navigate]);
 
-  // Check if the selected device has an associated user
   async function checkDeviceUser(deviceId) {
     try {
       const { data, error } = await supabase
@@ -88,22 +83,18 @@ export default function ScanBarcode() {
     }
   }
 
-  // Handle barcode scanner input - modified to handle a single scan properly
   useEffect(() => {
     let barcodeBuffer = "";
     let scanTimeoutId = null;
 
     const handleKeyPress = (event) => {
       if (isScanning && !scanComplete) {
-        // Add the pressed key to our buffer
         barcodeBuffer += event.key;
 
-        // Clear any existing timeout
         if (scanTimeoutId) {
           clearTimeout(scanTimeoutId);
         }
 
-        // Set a new timeout - if no new character comes in for 300ms, we consider the scan complete
         scanTimeoutId = setTimeout(() => {
           if (barcodeBuffer) {
             setScannedData(barcodeBuffer);
@@ -123,7 +114,6 @@ export default function ScanBarcode() {
     };
   }, [isScanning, scanComplete]);
 
-  // Process the scanned barcode once scanning is complete
   const processScannedBarcode = (barcodeData) => {
     if (isOversizedScan) {
       handleOversizedScan(barcodeData);
@@ -134,31 +124,28 @@ export default function ScanBarcode() {
 
   useEffect(() => {
     if (statusMessage || errorMessage) {
-      setShowModal(true); // Show modal when a status or error message is set
+      setShowModal(true);
 
-      // Only set auto-close timer if it's not a successful oversized scan
       if (!isOversizedSuccess) {
-        // Automatically close the modal after 30 seconds
         const timer = setTimeout(() => {
           setShowModal(false);
-          setStatusMessage(""); // Clear the status message
-          setErrorMessage(""); // Clear the error message
+          setStatusMessage("");
+          setErrorMessage("");
         }, 30000);
 
-        return () => clearTimeout(timer); // Cleanup the timer
+        return () => clearTimeout(timer);
       }
     }
   }, [statusMessage, errorMessage, isOversizedSuccess]);
 
   const startScanning = () => {
-    // Clear previous state
     setMessage("");
     setStatusMessage("");
     setErrorMessage("");
     setScannedData("");
-    setManualInput(""); // Clear manual input field
-    setScanComplete(false); // Reset scan complete state
-    setIsOversizedSuccess(false); // Reset oversized success flag
+    setManualInput("");
+    setScanComplete(false);
+    setIsOversizedSuccess(false);
     setIsScanning(true);
   };
 
@@ -168,21 +155,19 @@ export default function ScanBarcode() {
     setStatusMessage("");
     setErrorMessage("");
     setScannedData("");
-    setManualInput(""); // Clear manual input field
-    setScanComplete(false); // Reset scan complete state
-    setIsOversizedSuccess(false); // Reset oversized success flag
+    setManualInput("");
+    setScanComplete(false);
+    setIsOversizedSuccess(false);
     setIsOversizedScan(true);
     setIsScanning(true);
   };
 
   const handleScan = async (barcodeData) => {
-    // Use parameter or state if no parameter provided
     const barcode = barcodeData || scannedData;
 
     setIsScanning(false);
-    setIsLoading(true); // Show loading while processing
+    setIsLoading(true);
 
-    // Clear previous messages
     setMessage("");
     setStatusMessage("");
     setErrorMessage("");
@@ -196,7 +181,6 @@ export default function ScanBarcode() {
     }
 
     try {
-      // First check if the barcode exists at all, without status filter
       const { data: allOrders, error: allOrdersError } = await supabase
         .from("user_order")
         .select("*")
@@ -211,7 +195,6 @@ export default function ScanBarcode() {
         console.log("All Orders:", allOrders, "Error:", allOrdersError);
       }
 
-      // Now check for pending orders specifically
       const { data: pendingOrders, error: selectError } = await supabase
         .from("user_order")
         .select("*")
@@ -227,7 +210,6 @@ export default function ScanBarcode() {
         return;
       }
 
-      // Insert scan record regardless of whether we found a pending order
       const { error: insertError } = await supabase
         .from("courier")
         .insert([{ scanned_barcode: barcode.trim(), scanned_at: new Date() }]);
@@ -239,29 +221,22 @@ export default function ScanBarcode() {
         return;
       }
 
-      // Success message for database insertion
       setMessage("Barcode scan successfully recorded in database!");
 
-      // Check if we found any matching orders at all
       if (!allOrders || allOrders.length === 0) {
         setModalTitle("Parcel Not Found");
         setStatusMessage("No orders found with this barcode.");
-      }
-      // Check if we found matching orders, but none are pending
-      else if (!pendingOrders || pendingOrders.length === 0) {
+      } else if (!pendingOrders || pendingOrders.length === 0) {
         setModalTitle("Parcel Status");
         setStatusMessage(
           `Order found but status is "${allOrders[0].status}" instead of "pending".`
         );
-      }
-      // We found a pending order with matching barcode
-      else {
+      } else {
         setModalTitle("Parcel Found");
         setStatusMessage(
           `Barcode matched with pending order! Status will be updated to completed.`
         );
 
-        // Add a slight delay before navigation
         setTimeout(() => {
           navigate("/compartment");
         }, 1500);
@@ -271,19 +246,17 @@ export default function ScanBarcode() {
       setErrorMessage("An unexpected error occurred: " + error.message);
     } finally {
       setIsLoading(false);
-      setScanComplete(false); // Reset for potential future scans
+      setScanComplete(false);
     }
   };
 
   const handleOversizedScan = async (barcodeData) => {
-    // Use parameter or state if no parameter provided
     const barcode = barcodeData || scannedData;
 
     setIsScanning(false);
     setIsOversizedScan(false);
-    setIsLoading(true); // Show loading while processing
+    setIsLoading(true);
 
-    // Clear previous messages
     setMessage("");
     setStatusMessage("");
     setErrorMessage("");
@@ -298,7 +271,6 @@ export default function ScanBarcode() {
     }
 
     try {
-      // Check if the barcode exists in the database
       const { data: allOrders, error: allOrdersError } = await supabase
         .from("user_order")
         .select("*")
@@ -318,7 +290,6 @@ export default function ScanBarcode() {
         return;
       }
 
-      // Update the status of the parcel to "oversized"
       const { error: updateError } = await supabase
         .from("user_order")
         .update({ status: "oversized", completed_at: new Date() })
@@ -336,13 +307,13 @@ export default function ScanBarcode() {
       setStatusMessage(
         "Parcel is recorded as oversized. You may now place it anywhere safe from theft."
       );
-      setIsOversizedSuccess(true); // Set flag to indicate successful oversized scan
+      setIsOversizedSuccess(true);
     } catch (error) {
       setModalTitle("Error");
       setErrorMessage("An unexpected error occurred: " + error.message);
     } finally {
       setIsLoading(false);
-      setScanComplete(false); // Reset for potential future scans
+      setScanComplete(false);
     }
   };
 
@@ -372,10 +343,10 @@ export default function ScanBarcode() {
 
   const closeModal = () => {
     setShowModal(false);
-    setStatusMessage(""); // Clear the status message when modal is closed
-    setErrorMessage(""); // Clear the error message when modal is closed
-    setModalTitle(""); // Clear the modal title when modal is closed
-    setIsOversizedSuccess(false); // Reset the oversized success flag
+    setStatusMessage("");
+    setErrorMessage("");
+    setModalTitle("");
+    setIsOversizedSuccess(false);
   };
 
   const closeModalAndRedirect = () => {
@@ -384,7 +355,7 @@ export default function ScanBarcode() {
     setErrorMessage("");
     setModalTitle("");
     setIsOversizedSuccess(false);
-    navigate("/start"); // Redirect to the start page
+    navigate("/start");
   };
 
   useEffect(() => {
@@ -395,25 +366,21 @@ export default function ScanBarcode() {
         clearTimeout(inactivityTimer);
       }
       inactivityTimer = setTimeout(() => {
-        navigate("/start"); // Redirect to the start page after 20 seconds of inactivity
-      }, 20000); // 20 seconds
+        navigate("/start");
+      }, 20000);
     };
 
-    // Reset the timer on any user interaction
     const handleUserActivity = () => {
       resetInactivityTimer();
     };
 
-    // Attach event listeners for user activity
     window.addEventListener("keypress", handleUserActivity);
     window.addEventListener("mousemove", handleUserActivity);
     window.addEventListener("click", handleUserActivity);
 
-    // Start the inactivity timer when the component mounts
     resetInactivityTimer();
 
     return () => {
-      // Cleanup event listeners and timer on component unmount
       window.removeEventListener("keypress", handleUserActivity);
       window.removeEventListener("mousemove", handleUserActivity);
       window.removeEventListener("click", handleUserActivity);
@@ -425,7 +392,6 @@ export default function ScanBarcode() {
 
   return (
     <div className="box">
-      {/* Modal Notification */}
       {showModal && (
         <div className="modal">
           <div
@@ -438,20 +404,16 @@ export default function ScanBarcode() {
                 : "warning"
             }`}
           >
-            {/* Only show close X button if not a successful oversized scan */}
             {!isOversizedSuccess && (
               <button className="modal-close-x" onClick={closeModal}>
                 &times;
               </button>
             )}
 
-            {/* Modal Title */}
             {modalTitle && <h3 className="modal-title">{modalTitle}</h3>}
 
-            {/* Modal Message */}
             <p className="modal-msg">{errorMessage || statusMessage}</p>
 
-            {/* Go to Start Page button for oversized scans */}
             {(isOversizedSuccess || statusMessage.includes("oversized")) && (
               <button
                 className="modal-redirect-button"
@@ -461,7 +423,6 @@ export default function ScanBarcode() {
               </button>
             )}
 
-            {/* Only show close button if not a successful oversized scan */}
             {!isOversizedSuccess && (
               <button className="modal-close-button" onClick={closeModal}>
                 Close

@@ -12,10 +12,8 @@ export default function StartPage() {
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Get the selected device from localStorage
   const selectedDevice = localStorage.getItem("selectedDevice");
 
-  // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
     if (!selectedDevice) {
       navigate("/");
@@ -40,7 +38,6 @@ export default function StartPage() {
       )
       .subscribe();
 
-    // Check for existing user when device is selected
     checkDeviceUser(selectedDevice);
 
     return () => {
@@ -48,7 +45,6 @@ export default function StartPage() {
     };
   }, [selectedDevice, navigate]);
 
-  // Check if the selected device has an associated user
   async function checkDeviceUser(deviceId) {
     try {
       const { data, error } = await supabase

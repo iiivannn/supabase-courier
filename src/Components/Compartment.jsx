@@ -6,7 +6,6 @@ import "./styles.css";
 import logo from "../assets/parsafe_logo.png";
 import CheckLogout from "./logout/checkLogout";
 
-// Status constants for better maintainability
 const STATUS = {
   LOCKED: "locked",
   OPENING: "opening",
@@ -24,7 +23,6 @@ export default function CompartmentPage() {
 
   const selectedDevice = localStorage.getItem("selectedDevice");
 
-  // Memoized API call functions
   const checkDeviceUser = useCallback(async (deviceId) => {
     try {
       const { data, error } = await supabase
@@ -44,7 +42,7 @@ export default function CompartmentPage() {
   }, []);
 
   const openSolenoidLock = useCallback(async () => {
-    if (compartmentStatus !== STATUS.LOCKED) return; // Prevent duplicate call
+    if (compartmentStatus !== STATUS.LOCKED) return;
 
     try {
       setCompartmentStatus(STATUS.OPENING);
@@ -63,7 +61,7 @@ export default function CompartmentPage() {
       console.error("Lock error:", error);
       setCompartmentStatus(STATUS.LOCKED);
     }
-  }, [compartmentStatus]); // Dependency to prevent unnecessary re-renders
+  }, [compartmentStatus]);
 
   const closeSolenoidLock = useCallback(async () => {
     try {
@@ -83,7 +81,6 @@ export default function CompartmentPage() {
 
   const checkParcel = useCallback(async () => {
     try {
-      // Only check when compartment is open
       if (compartmentStatus !== STATUS.OPEN) return;
 
       const response = await fetch("http://127.0.0.1:5000/check-parcel");
@@ -93,7 +90,6 @@ export default function CompartmentPage() {
       setLastDetection(result);
 
       if (result.status === "success" && result.parcel_detected) {
-        // Immediate close when parcel detected
         await closeSolenoidLock();
       }
     } catch (error) {
@@ -101,14 +97,12 @@ export default function CompartmentPage() {
     }
   }, [compartmentStatus, closeSolenoidLock]);
 
-  // Main effect for component setup
   useEffect(() => {
     if (!selectedDevice) {
       navigate("/");
       return;
     }
 
-    // Setup Supabase subscription
     const subscription = supabase
       .channel("unit_devices_changes")
       .on(
@@ -125,11 +119,9 @@ export default function CompartmentPage() {
       )
       .subscribe();
 
-    // Initial setup
     checkDeviceUser(selectedDevice);
     openSolenoidLock();
 
-    // Setup parcel checking with cleanup
     const parcelCheckInterval = setInterval(checkParcel, 1000);
     return () => {
       supabase.removeChannel(subscription);
@@ -143,7 +135,6 @@ export default function CompartmentPage() {
     checkParcel,
   ]);
 
-  // Status text mapping
   const statusMessages = {
     [STATUS.LOCKED]: "Preparing compartment...",
     [STATUS.OPENING]: "Opening compartment...",
@@ -193,4 +184,3 @@ export default function CompartmentPage() {
     </div>
   );
 }
-//working version

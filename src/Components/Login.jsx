@@ -12,7 +12,6 @@ export default function Login() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch available device IDs on component mount
   useEffect(() => {
     async function fetchDevices() {
       try {
@@ -21,7 +20,6 @@ export default function Login() {
           .select("device_id, user_id, username, isOccupied");
         if (error) throw error;
 
-        // Filter devices based on the new isOccupied logic
         const filteredDevices = data.filter(
           (item) => !(item.user_id && item.username && item.isOccupied)
         );
@@ -38,11 +36,9 @@ export default function Login() {
     fetchDevices();
   }, []);
 
-  // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
     if (!selectedDevice) return;
 
-    // Subscribe to changes for the selected device
     const subscription = supabase
       .channel("unit_devices_changes")
       .on(
@@ -60,7 +56,6 @@ export default function Login() {
       )
       .subscribe();
 
-    // Check for existing user when device is selected
     checkDeviceUser(selectedDevice);
 
     return () => {
@@ -68,7 +63,6 @@ export default function Login() {
     };
   }, [selectedDevice]);
 
-  // Check if the selected device has an associated user
   async function checkDeviceUser(deviceId) {
     try {
       const { data, error } = await supabase
@@ -83,7 +77,6 @@ export default function Login() {
       }
 
       if (data && data.user_id) {
-        // Get user details from auth.users
         const { data: userData, error: userError } =
           await supabase.auth.admin.getUserById(data.user_id);
 
@@ -107,12 +100,10 @@ export default function Login() {
     }
   }
 
-  // Handle device selection change
   const handleDeviceChange = (e) => {
     setSelectedDevice(e.target.value);
   };
 
-  // Handle login button click
   const handleLogin = async () => {
     if (!selectedDevice) {
       setError("Please select a device");
@@ -120,7 +111,6 @@ export default function Login() {
     }
 
     try {
-      // Update the isOccupied column to true for the selected device
       const { error } = await supabase
         .from("unit_devices")
         .update({ isOccupied: true })
@@ -128,10 +118,8 @@ export default function Login() {
 
       if (error) throw error;
 
-      // Store selected device in localStorage for use in other components
       localStorage.setItem("selectedDevice", selectedDevice);
 
-      // Navigate to start page
       navigate("/start");
     } catch (err) {
       console.error("Error updating device status:", err.message);
