@@ -20,7 +20,7 @@ export default function CheckLogout({ deviceId }) {
         },
         (payload) => {
           if (payload.new.isLogout) {
-            navigate("/"); // Redirect to login page
+            navigate("/");
           }
         }
       )

@@ -1,39 +1,36 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabase";
-import Loading from "../loading/loading"; // Import the Loading component
+import Loading from "../loading/loading";
 import "./styles.css";
 import logo from "../assets/parsafe_logo.png";
 
 import CheckLogout from "./logout/checkLogout";
 
 export default function ClosedVerify() {
-  const navigate = useNavigate(); // For navigating between pages
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsLoading(false); // Stop loading after 12 seconds
-      navigate("/received"); // Redirect to another file
+      setIsLoading(false);
+      navigate("/received");
     }, 12000);
 
-    return () => clearTimeout(timer); // Cleanup the timer on component unmount
+    return () => clearTimeout(timer);
   }, [navigate]);
 
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Get the selected device from localStorage
   const selectedDevice = localStorage.getItem("selectedDevice");
 
-  // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
     if (!selectedDevice) {
       navigate("/");
       return;
     }
 
-    // Subscribe to changes for the selected device
     const subscription = supabase
       .channel("unit_devices_changes")
       .on(
@@ -51,7 +48,6 @@ export default function ClosedVerify() {
       )
       .subscribe();
 
-    // Check for existing user when device is selected
     checkDeviceUser(selectedDevice);
 
     return () => {
@@ -59,7 +55,6 @@ export default function ClosedVerify() {
     };
   }, [selectedDevice, navigate]);
 
-  // Check if the selected device has an associated user
   async function checkDeviceUser(deviceId) {
     try {
       const { data, error } = await supabase
@@ -94,7 +89,7 @@ export default function ClosedVerify() {
             <p>Welcome to ParSafe!</p>
           </div>
           <div className="get_user">
-            <p>Device ID: {selectedDevice}</p>
+            <p>{selectedDevice}</p>
             <p>
               ParSafe User:{" "}
               {loading

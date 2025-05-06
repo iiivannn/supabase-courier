@@ -13,11 +13,10 @@ export default function Received() {
   const [deviceUsername, setDeviceUsername] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [countdown, setCountdown] = useState(20); // Countdown starts at 20 seconds
+  const [countdown, setCountdown] = useState(20);
 
   const selectedDevice = localStorage.getItem("selectedDevice");
 
-  // Inactivity timer setup
   const [inactivityTimer, setInactivityTimer] = useState(null);
 
   useEffect(() => {
@@ -50,7 +49,6 @@ export default function Received() {
     };
   }, [selectedDevice, navigate]);
 
-  // Function to check device user
   async function checkDeviceUser(deviceId) {
     try {
       const { data, error } = await supabase
@@ -76,35 +74,29 @@ export default function Received() {
     }
   }
 
-  // Function to reset the inactivity timer
   const resetInactivityTimer = () => {
     if (inactivityTimer) {
       clearTimeout(inactivityTimer);
     }
-    setCountdown(20); // Reset countdown to 20 seconds
+    setCountdown(20);
     const newTimer = setTimeout(() => {
-      navigate("/scan"); // Redirect to /scan after 20 seconds of inactivity
-    }, 20000); // 20 seconds
+      navigate("/scan");
+    }, 20000);
     setInactivityTimer(newTimer);
   };
 
-  // Effect to handle user activity
   useEffect(() => {
-    // Add event listeners for user activity
     const events = ["mousemove", "mousedown", "keypress", "touchstart"];
     events.forEach((event) => {
       window.addEventListener(event, resetInactivityTimer);
     });
 
-    // Initialize the timer
     resetInactivityTimer();
 
-    // Start the countdown interval
     const countdownInterval = setInterval(() => {
       setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
-    // Cleanup event listeners, timer, and interval
     return () => {
       events.forEach((event) => {
         window.removeEventListener(event, resetInactivityTimer);
@@ -127,7 +119,7 @@ export default function Received() {
           </div>
 
           <div className="get_user">
-            <p>Device ID: {selectedDevice}</p>
+            <p>{selectedDevice}</p>
             <p>
               ParSafe User:{" "}
               {loading
@@ -147,14 +139,16 @@ export default function Received() {
             <p>
               <FontAwesomeIcon icon={faCamera} className="camera-icon" />
             </p>
-            <ul>
-              <li>Please take a picture of the enclosed ParSafe!</li>
+            <ul className="inst-ul">
+              <li className="inst-li">
+                Please take a picture of the enclosed ParSafe!
+              </li>
             </ul>
           </div>
 
           {/* Countdown Timer */}
           <div className="countdown-timer">
-            <p>Redirecting to Scan in: {countdown} seconds</p>
+            <p className="timer">Redirecting to Scan in: {countdown} seconds</p>
           </div>
 
           <div className="buttons">

@@ -10,10 +10,8 @@ export default function Login() {
   const [username, setUsername] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
-  const [addDeviceUsed, setAddDeviceUsed] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch available device IDs on component mount
   useEffect(() => {
     async function fetchDevices() {
       try {
@@ -22,7 +20,6 @@ export default function Login() {
           .select("device_id, user_id, username, isOccupied");
         if (error) throw error;
 
-        // Filter devices based on the new isOccupied logic
         const filteredDevices = data.filter(
           (item) => !(item.user_id && item.username && item.isOccupied)
         );
@@ -39,11 +36,9 @@ export default function Login() {
     fetchDevices();
   }, []);
 
-  // Set up real-time subscription for changes to unit_devices table
   useEffect(() => {
-    if (!selectedDevice || selectedDevice === "add_new") return;
+    if (!selectedDevice) return;
 
-    // Subscribe to changes for the selected device
     const subscription = supabase
       .channel("unit_devices_changes")
       .on(
@@ -61,7 +56,6 @@ export default function Login() {
       )
       .subscribe();
 
-    // Check for existing user when device is selected
     checkDeviceUser(selectedDevice);
 
     return () => {
@@ -69,10 +63,7 @@ export default function Login() {
     };
   }, [selectedDevice]);
 
-  // Check if the selected device has an associated user
   async function checkDeviceUser(deviceId) {
-    if (deviceId === "add_new") return;
-
     try {
       const { data, error } = await supabase
         .from("unit_devices")
@@ -86,7 +77,6 @@ export default function Login() {
       }
 
       if (data && data.user_id) {
-        // Get user details from auth.users
         const { data: userData, error: userError } =
           await supabase.auth.admin.getUserById(data.user_id);
 
@@ -110,76 +100,17 @@ export default function Login() {
     }
   }
 
-  // Handle device selection change
-  const handleDeviceChange = async (e) => {
-    const value = e.target.value;
-
-    if (value === "add_new") {
-      if (addDeviceUsed) {
-        setError("You can only add one device per login session");
-        return;
-      }
-
-      try {
-        setLoading(true);
-
-        // Get all existing device_ids to determine the next unit number
-        const { data, error } = await supabase
-          .from("unit_devices")
-          .select("device_id");
-
-        if (error) throw error;
-
-        // Find the highest unit number
-        let highestUnit = 0;
-        data.forEach((device) => {
-          if (device.device_id.startsWith("unit")) {
-            const unitNumber = parseInt(
-              device.device_id.replace("unit", ""),
-              10
-            );
-            if (!isNaN(unitNumber) && unitNumber > highestUnit) {
-              highestUnit = unitNumber;
-            }
-          }
-        });
-
-        // Create new device_id
-        const newDeviceId = `unit${highestUnit + 1}`;
-
-        // Add the new device to the database
-        const { error: insertError } = await supabase
-          .from("unit_devices")
-          .insert({ device_id: newDeviceId, user_id: null, username: null });
-
-        if (insertError) throw insertError;
-
-        // Update local state
-        setDevices([...devices, newDeviceId]);
-        setSelectedDevice(newDeviceId);
-        setAddDeviceUsed(true);
-        setLoading(false);
-
-        console.log(`Created new device: ${newDeviceId}`);
-      } catch (err) {
-        console.error("Error adding new device:", err.message);
-        setError("Failed to add new device");
-        setLoading(false);
-      }
-    } else {
-      setSelectedDevice(value);
-    }
+  const handleDeviceChange = (e) => {
+    setSelectedDevice(e.target.value);
   };
 
-  // Handle login button click
   const handleLogin = async () => {
-    if (!selectedDevice || selectedDevice === "add_new") {
+    if (!selectedDevice) {
       setError("Please select a device");
       return;
     }
 
     try {
-      // Update the isOccupied column to true for the selected device
       const { error } = await supabase
         .from("unit_devices")
         .update({ isOccupied: true })
@@ -187,10 +118,8 @@ export default function Login() {
 
       if (error) throw error;
 
-      // Store selected device in localStorage for use in other components
       localStorage.setItem("selectedDevice", selectedDevice);
 
-      // Navigate to start page
       navigate("/start");
     } catch (err) {
       console.error("Error updating device status:", err.message);
@@ -222,13 +151,10 @@ export default function Login() {
                 {deviceId}
               </option>
             ))}
-            <option value="add_new" disabled={addDeviceUsed}>
-              + Add new device
-            </option>
           </select>
         </div>
 
-        {selectedDevice && selectedDevice !== "add_new" && !username && (
+        {selectedDevice && !username && (
           <div className="device-status">
             <p>Listening for user association changes...</p>
           </div>
@@ -237,7 +163,7 @@ export default function Login() {
         <button
           className="login-button"
           onClick={handleLogin}
-          disabled={!selectedDevice || selectedDevice === "add_new"}
+          disabled={!selectedDevice}
         >
           Login
         </button>
